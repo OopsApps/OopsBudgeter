@@ -57,10 +57,10 @@
   "homepage": "https://budget.oopsapps.tech",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OopsApps/budgeter"
+    "url": "https://github.com/OopsApps/OopsBudgeter"
   },
   "bugs": {
-    "url": "https://github.com/OopsApps/budgeter/issues"
+    "url": "https://github.com/OopsApps/OopsBudgeter/issues"
   },
   "funding": {
     "type": "sponsor",

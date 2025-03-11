@@ -37,7 +37,7 @@ OopsBudgeter is a personal finance management app designed to help users track t
 1. **Clone the repository**:
 
     ```bash
-    git clone https://github.com/OopsApps/budgeter.git
+    git clone https://github.com/OopsApps/OopsBudgeter.git
     cd budgeter
     ```
 
@@ -60,7 +60,7 @@ OopsBudgeter is a personal finance management app designed to help users track t
 1. **Clone the repository**:
 
     ```bash
-    git clone https://github.com/OopsApps/budgeter.git
+    git clone https://github.com/OopsApps/OopsBudgeter.git
     cd budgeter
     ```
 
@@ -109,11 +109,11 @@ We appreciate all contributions, whether small or large!
 
 ### Issues
 
-If you encounter any issues with the app, please open an issue on the [GitHub Issues page](https://github.com/OopsApps/budgeter/issues).
+If you encounter any issues with the app, please open an issue on the [GitHub Issues page](https://github.com/OopsApps/OopsBudgeter/issues).
 
 ## Support
 
-If you need support or have any questions about using the app, feel free to contact me at [help@oopsapps.tech](mailto:help@oopsapps.tech) or open an issue in the [GitHub Issues page](https://github.com/OopsApps/budgeter/issues).
+If you need support or have any questions about using the app, feel free to contact me at [help@oopsapps.tech](mailto:help@oopsapps.tech) or open an issue in the [GitHub Issues page](https://github.com/OopsApps/OopsBudgeter/issues).
 
 ## License
 
