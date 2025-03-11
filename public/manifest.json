@@ -1,0 +1,16 @@
+{
+  "name": "OopsBudgeter",
+  "short_name": "OopsBudgeter",
+  "description": "Track your budget effortlessly with OopsBudgeter.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0A0A",
+  "theme_color": "#166d3b",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "500x500",
+      "type": "image/png"
+    }
+  ]
+}

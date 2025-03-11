@@ -1,0 +1,17 @@
+version: "3"
+services:
+  oopsbudgeter:
+    image: ghcr.io/OopsApps/budgeter:latest
+    ports:
+      - "3333:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_CURRENCY=USD
+      - PASSCODE=123123
+      - JWT_SECRET=Ithinkyouforgottouseyourown32tokencode
+    networks:
+      - oopsbudgeter-network
+
+networks:
+  oopsbudgeter-network:
+    driver: bridge

@@ -1,0 +1,77 @@
+{
+  "name": "oops-budgeter",
+  "version": "1.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack -p 3031",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@ducanh2912/next-pwa": "^10.2.9",
+    "@hookform/resolvers": "^4.1.3",
+    "@iconify/react": "^5.2.0",
+    "@radix-ui/react-dialog": "^1.1.6",
+    "better-sqlite3": "^11.8.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "input-otp": "^1.4.2",
+    "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.477.0",
+    "mongoose": "^8.12.1",
+    "motion": "^12.4.10",
+    "mysql2": "^3.13.0",
+    "next": "15.2.1",
+    "next-themes": "^0.4.4",
+    "quick.db": "^9.1.7",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.54.2",
+    "react-to-print": "^3.0.5",
+    "sonner": "^2.0.1",
+    "tailwind-merge": "^3.0.2",
+    "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.19.3",
+    "vaul": "^1.1.2",
+    "write-file-atomic": "^6.0.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.2.1",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "author": {
+    "name": "Laith Alkhaddam aka Iconical or Sleepyico",
+    "url": "https://iconical.dev"
+  },
+  "license": "Apache-2.0",
+  "homepage": "https://budget.oopsapps.tech",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OopsApps/budgeter"
+  },
+  "bugs": {
+    "url": "https://github.com/OopsApps/budgeter/issues"
+  },
+  "funding": {
+    "type": "sponsor",
+    "url": "https://buymeacoffee.com/iconical"
+  },
+  "description": "A personal budget tracker for effortless finance management.",
+  "keywords": [
+    "budget",
+    "finance",
+    "pwa",
+    "nextjs",
+    "react"
+  ]
+}
