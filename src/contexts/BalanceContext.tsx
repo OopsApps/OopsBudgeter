@@ -16,6 +16,7 @@
  */
 "use client";
 
+import { selectTransactionType } from "@/schema/transactionForm";
 import React, {
   createContext,
   useState,
@@ -28,6 +29,7 @@ interface BalanceContextType {
   currentBalance: number;
   setCurrentBalance: (balance: number) => void;
   loading?: boolean;
+  refreshBalance: () => Promise<void>;
 }
 
 const BalanceContext = createContext<BalanceContextType | undefined>(undefined);
@@ -35,36 +37,38 @@ const BalanceContext = createContext<BalanceContextType | undefined>(undefined);
 export const BalanceProvider = ({ children }: { children: ReactNode }) => {
   const [currentBalance, setCurrentBalance] = useState<number>(0);
 
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        const response = await fetch("/api/transactions");
-        const data = await response.json();
+  const fetchTransactions = async () => {
+    try {
+      const response = await fetch("/api/transactions");
+      const data = await response.json();
 
-        const balance = isNaN(data.currentBalance) ? 0 : data.currentBalance;
-
-        setCurrentBalance(balance);
-      } catch (error) {
-        console.error("Error fetching transactions", error);
-        setCurrentBalance(0);
-      }
-    };
-
-    fetchTransactions();
-
-    if (isNaN(currentBalance)) {
-      const intervalId = setInterval(() => {
-        fetchTransactions();
-      }, 1000);
-
-      return () => {
-        clearInterval(intervalId);
-      };
+      const balance = data.transactions.reduce(
+        (acc: number, transaction: selectTransactionType) => {
+          return transaction.type === "income"
+            ? acc + transaction.amount
+            : acc - transaction.amount;
+        },
+        0
+      );
+      setCurrentBalance(balance);
+    } catch (error) {
+      console.error("Error fetching transactions", error);
+      setCurrentBalance(0);
     }
-  }, [currentBalance]);
+  };
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  const refreshBalance = async () => {
+    await fetchTransactions();
+  };
 
   return (
-    <BalanceContext.Provider value={{ currentBalance, setCurrentBalance }}>
+    <BalanceContext.Provider
+      value={{ currentBalance, setCurrentBalance, refreshBalance }}
+    >
       {children}
     </BalanceContext.Provider>
   );

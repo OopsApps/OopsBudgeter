@@ -1,13 +1,13 @@
 /*
  *   Copyright (c) 2025 Laith Alkhaddam aka Iconical or Sleepyico.
  *   All rights reserved.
-
+ *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
  *   You may obtain a copy of the License at
-
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
-
+ *
  *   Unless required by applicable law or agreed to in writing, software
  *   distributed under the License is distributed on an "AS IS" BASIS,
  *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,208 +15,139 @@
  *   limitations under the License.
  */
 
-import { Transaction } from "@/types/Transaction";
+import { db } from "@/lib/db";
+import { transactions } from "@/schema/dbSchema";
+import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
-import { QuickDB } from "quick.db";
+import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
-const db = new QuickDB();
 const SECRET = process.env.JWT_SECRET as string;
-const BASE_URL = process.env.NEXT_PUBLIC_URL as string;
 
-export async function GET() {
-  const response = new NextResponse();
-
-  response.headers.set("Access-Control-Allow-Origin", BASE_URL);
-  response.headers.set("Access-Control-Allow-Methods", "GET, POST, DELETE");
-  response.headers.set(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization"
-  );
-
+async function verifyToken(req: NextRequest) {
   const cookieStore = await cookies();
-  const token = cookieStore.get("authToken");
+  const tokenFromCookie = cookieStore.get("authToken")?.value;
 
-  if (!token) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
+  const authHeader = req.headers.get("Authorization");
+  const tokenFromHeader =
+    authHeader && authHeader.startsWith("Bearer ")
+      ? authHeader.split(" ")[1]
+      : null;
+
+  const token = tokenFromHeader || tokenFromCookie;
+
+  if (!token) return { authorized: false, error: "Unauthorized" };
 
   try {
-    const decoded = jwt.verify(token.value, SECRET);
-
-    const transactions = await db.get("transactions");
-    const currentBalance = await db.get("balance");
-
-    response.headers.set("Content-Type", "application/json");
-
-    return new NextResponse(
-      JSON.stringify({
-        user: decoded,
-        transactions,
-        currentBalance,
-      }),
-      { status: 200 }
-    );
+    const decoded = jwt.verify(token, SECRET);
+    return { authorized: true, user: decoded };
   } catch (err) {
-    if (err instanceof Error) {
-      response.headers.set("Content-Type", "application/json");
-
-      return NextResponse.json(
-        { message: "Invalid or expired token", error: err.message },
-        { status: 401 }
-      );
-    } else {
-      response.headers.set("Content-Type", "application/json");
-      return NextResponse.json(
-        { message: "Invalid or expired token", error: "Unknown error" },
-        { status: 401 }
-      );
-    }
+    return {
+      authorized: false,
+      error: `Invalid or expired token, ${(err as Error).message}`,
+    };
   }
 }
-export async function POST(request: Request) {
-  const response = new NextResponse();
 
-  response.headers.set("Access-Control-Allow-Origin", BASE_URL);
-  response.headers.set("Access-Control-Allow-Methods", "GET, POST, DELETE");
-  response.headers.set(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization"
-  );
+export async function GET(req: NextRequest) {
+  const { authorized, user, error } = await verifyToken(req);
 
-  const cookieStore = await cookies();
-  const token = cookieStore.get("authToken");
-
-  if (!token) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!authorized) {
+    return NextResponse.json({ message: error }, { status: 401 });
   }
 
   try {
-    const { type, amount, description, date }: Transaction =
-      await request.json();
+    const transactionsList = await db.select().from(transactions);
 
-    let currentBalance = (await db.get("balance")) || 0;
+    return NextResponse.json({
+      user,
+      transactions: transactionsList,
+    });
+  } catch (err) {
+    return NextResponse.json(
+      {
+        message: "Failed to fetch transactions",
+        error: (err as Error).message,
+      },
+      { status: 500 }
+    );
+  }
+}
 
-    if (type === "income") {
-      currentBalance += amount;
-    } else if (type === "expense") {
-      currentBalance -= amount;
-    }
+export async function POST(req: NextRequest) {
+  const { authorized, user, error } = await verifyToken(req);
 
-    let transactionId = (await db.get("transactionId")) || 0;
-    transactionId++;
+  if (!authorized) {
+    return NextResponse.json({ message: error }, { status: 401 });
+  }
 
-    const transaction: Transaction = {
-      tid: transactionId,
-      type,
-      amount,
-      description: description || "No description provided",
-      date,
-    };
+  try {
+    const { type, amount, description, date } = await req.json();
 
-    const transactions = (await db.get("transactions")) || [];
+    const newTransaction = await db
+      .insert(transactions)
+      .values({
+        type,
+        amount,
+        description: description || "No description provided",
+        date: new Date(date),
+      })
+      .returning();
 
-    transactions.push(transaction);
-
-    await db.set("transactions", transactions);
-    await db.set("transactionId", transactionId);
-
-    await db.set("balance", currentBalance);
-
-    return new NextResponse(
-      JSON.stringify({
+    return NextResponse.json(
+      {
+        user,
         message: "Transaction added",
-        transaction,
-        currentBalance,
-      }),
+        transaction: newTransaction[0],
+      },
       { status: 201 }
     );
   } catch (err) {
-    if (err instanceof Error) {
-      response.headers.set("Content-Type", "application/json");
-      return NextResponse.json(
-        { message: "Failed to add a new transaction:", error: err.message },
-        { status: 401 }
-      );
-    } else {
-      response.headers.set("Content-Type", "application/json");
-      return NextResponse.json(
-        { message: "Failed to add a new transaction:", error: "Unknown error" },
-        { status: 401 }
-      );
-    }
+    return NextResponse.json(
+      { message: "Failed to add transaction", error: (err as Error).message },
+      { status: 500 }
+    );
   }
 }
 
-export async function DELETE(request: Request) {
-  const response = new NextResponse();
+export async function DELETE(req: NextRequest) {
+  const { authorized, user, error } = await verifyToken(req);
 
-  response.headers.set("Access-Control-Allow-Origin", BASE_URL);
-  response.headers.set("Access-Control-Allow-Methods", "GET, POST, DELETE");
-  response.headers.set(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization"
-  );
-
-  const cookieStore = await cookies();
-  const token = cookieStore.get("authToken");
-
-  if (!token) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!authorized) {
+    return NextResponse.json({ message: error }, { status: 401 });
   }
 
   try {
-    const { tid }: { tid: number } = await request.json();
+    const { id } = await req.json();
 
-    const transactions = (await db.get("transactions")) || [];
+    const transactionToDelete = await db
+      .select()
+      .from(transactions)
+      .where(eq(transactions.id, id));
 
-    const transactionToDelete = transactions.find(
-      (transaction: Transaction) => transaction.tid === tid
-    );
-
-    if (!transactionToDelete) {
-      return new NextResponse(
-        JSON.stringify({ message: "Transaction not found" }),
+    if (!transactionToDelete.length) {
+      return NextResponse.json(
+        { message: "Transaction not found" },
         { status: 404 }
       );
     }
 
-    const updatedTransactions = transactions.filter(
-      (transaction: Transaction) => transaction.tid !== tid
-    );
+    await db.delete(transactions).where(eq(transactions.id, id));
 
-    let currentBalance = await db.get("balance");
-
-    if (transactionToDelete.type === "income") {
-      currentBalance -= transactionToDelete.amount;
-    } else if (transactionToDelete.type === "expense") {
-      currentBalance += transactionToDelete.amount;
-    }
-
-    await db.set("transactions", updatedTransactions);
-    await db.set("balance", currentBalance);
-
-    return new NextResponse(
-      JSON.stringify({
+    return NextResponse.json(
+      {
+        user,
         message: "Transaction deleted successfully",
-        currentBalance,
-      }),
+      },
       { status: 200 }
     );
   } catch (err) {
-    if (err instanceof Error) {
-      response.headers.set("Content-Type", "application/json");
-      return NextResponse.json(
-        { message: "Deletion was not successful", error: err.message },
-        { status: 401 }
-      );
-    } else {
-      response.headers.set("Content-Type", "application/json");
-      return NextResponse.json(
-        { message: "Deletion was not successful", error: "Unknown error" },
-        { status: 401 }
-      );
-    }
+    return NextResponse.json(
+      {
+        message: "Failed to delete transaction",
+        error: (err as Error).message,
+      },
+      { status: 500 }
+    );
   }
 }

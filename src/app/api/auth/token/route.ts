@@ -15,35 +15,11 @@
  *   limitations under the License.
  */
 
-import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
-
-const SECRET = process.env.JWT_SECRET as string;
+import { NextResponse } from "next/server";
 
 export async function GET() {
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("authToken")?.value;
-
-    if (!token) {
-      return NextResponse.json(
-        { message: "Not authenticated" },
-        { status: 401 }
-      );
-    }
-
-    // Verify JWT Token
-    const decoded = jwt.verify(token, SECRET);
-
-    return NextResponse.json({
-      message: "Authenticated",
-      user: decoded,
-    });
-  } catch (err) {
-    return NextResponse.json(
-      { message: "Invalid or expired token", error: (err as Error).message },
-      { status: 401 }
-    );
-  }
+  const cookieStore = await cookies();
+  const token = cookieStore.get("authToken")?.value || null;
+  return NextResponse.json({ token });
 }

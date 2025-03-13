@@ -15,24 +15,33 @@
  *   limitations under the License.
  */
 
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { transactions } from "./dbSchema";
 import { z } from "zod";
 
-export const transactionSchema = z.object({
-  type: z.enum(["income", "expense"], {
-    errorMap: () => ({ message: "Transaction type is required" }),
-  }),
-  amount: z
-    .number()
-    .min(0, { message: "Amount must be greater than 0" })
-    .positive({ message: "Amount must be a positive number" }),
-  description: z
-    .string()
-    .max(500, { message: "Amount must be greater than 0" })
-    .optional(),
-  date: z
-    .string()
-    .optional()
-    .refine((val) => val === undefined || !isNaN(Date.parse(val)), {
-      message: "Invalid date",
-    }),
+export const insertTransactionSchema = createInsertSchema(transactions, {
+  amount: (schema) =>
+    schema
+      .min(0, "Amount must be greater than 0")
+      .positive("Amount must be a positive number"),
+  description: (schema) =>
+    schema
+      .max(
+        100,
+        "You have reached the maximum characters allowed for a description (100 characters)"
+      )
+      .optional(),
+  date: () =>
+    z.preprocess((val) => {
+      if (typeof val === "string" && val.includes("T")) {
+        return new Date(val);
+      }
+      return val;
+    }, z.date().or(z.string().min(1, "Date is required"))),
 });
+
+export const selectTransactionSchema = createSelectSchema(transactions);
+
+export type insertTransactionType = typeof insertTransactionSchema._type;
+
+export type selectTransactionType = typeof selectTransactionSchema._type;

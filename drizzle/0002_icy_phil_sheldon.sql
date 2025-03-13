@@ -1,0 +1,1 @@
+ALTER TABLE "balance" RENAME TO "currentBalance";

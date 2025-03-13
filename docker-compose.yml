@@ -1,7 +1,7 @@
 version: "3"
 services:
   oopsbudgeter:
-    image: ghcr.io/oopsapps/oopsbudgeter:latest
+    image: iconical/oopsbudgeter:latest
     ports:
       - "3333:3000"
     environment:
