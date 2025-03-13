@@ -17,32 +17,42 @@
 
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
 
 const SECRET = process.env.JWT_SECRET as string;
+const PASSCODE = process.env.PASSCODE as string;
 
 export async function POST(request: Request) {
-  const { passcode } = await request.json();
+  try {
+    const cookieStore = await cookies();
+    const { passcode } = await request.json();
 
-  const correctPasscode = process.env.PASSCODE;
+    if (passcode !== PASSCODE) {
+      return NextResponse.json(
+        { message: "Incorrect passcode" },
+        { status: 401 }
+      );
+    }
 
-  if (passcode === correctPasscode) {
     const token = jwt.sign({ user: "authenticated" }, SECRET, {
       expiresIn: "7d",
     });
 
-    const response = NextResponse.json({ message: "Login successful" });
-    response.cookies.set("authToken", token, {
+    cookieStore.set({
+      name: "authToken",
+      value: token,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60,
+      path: "/",
     });
 
-    return response;
-  } else {
+    return NextResponse.json({ message: "Login successful", token });
+  } catch (error) {
     return NextResponse.json(
-      { message: "Incorrect passcode" },
-      { status: 401 }
+      { message: "Server error", error: (error as Error).message },
+      { status: 500 }
     );
   }
 }
