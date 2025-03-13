@@ -23,17 +23,25 @@ import { cn } from "@/lib/utils";
 interface InExCardProps {
   title: "Expenses" | "Income";
   amount: number;
+  onClick?: () => void;
+  className?: string;
 }
 
-export default function InExCard({ amount, title }: Readonly<InExCardProps>) {
+export default function InExCard({
+  amount,
+  title,
+  onClick,
+  className,
+}: Readonly<InExCardProps>) {
   return (
     <HoverEffect
-      className="p-2"
+      className={cn("p-2", className)}
       bgColor={
         title === "Expenses"
           ? "linear-gradient(135deg, #8b1c1c, #e24444, #d34f1b)"
           : "linear-gradient(135deg, #166d3b, #1ba94c, #6dd400)"
       }
+      onClick={onClick}
     >
       <div
         className={cn(

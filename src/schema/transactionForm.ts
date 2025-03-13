@@ -33,11 +33,12 @@ export const insertTransactionSchema = createInsertSchema(transactions, {
       .optional(),
   date: () =>
     z.preprocess((val) => {
-      if (typeof val === "string" && val.includes("T")) {
-        return new Date(val);
+      if (typeof val === "string") {
+        const parsedDate = new Date(val);
+        return isNaN(parsedDate.getTime()) ? undefined : parsedDate;
       }
-      return val;
-    }, z.date().or(z.string().min(1, "Date is required"))),
+      return val instanceof Date ? val : undefined;
+    }, z.date({ required_error: "Date is required", invalid_type_error: "Invalid date format" })),
 });
 
 export const selectTransactionSchema = createSelectSchema(transactions);

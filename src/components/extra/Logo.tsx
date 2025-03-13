@@ -14,22 +14,23 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
+"use client";
 
-import {
-  pgTable,
-  serial,
-  text,
-  timestamp,
-  real,
-  pgEnum,
-} from "drizzle-orm/pg-core";
-
-export const TypeEnum = pgEnum("TransactionType", ["income", "expense"]);
-
-export const transactions = pgTable("transactions", {
-  id: serial("id").primaryKey(),
-  type: TypeEnum("type"),
-  amount: real("amount").notNull(),
-  description: text("description"),
-  date: timestamp("date", { mode: "string" }).notNull(),
-});
+import React from "react";
+import { useTheme } from "next-themes";
+import Image from "next/image";
+export default function Logo() {
+  const { theme } = useTheme();
+  return (
+    <span className="flex items-center justify-center gap-4">
+      <Image
+        alt="OopsBudgeter Logo"
+        src={theme === "light" ? "/logo.png" : "/logo_dark.png"}
+        width={512}
+        height={512}
+        className="h-8 w-8"
+      />
+      <h2>OopsBudgeter</h2>
+    </span>
+  );
+}

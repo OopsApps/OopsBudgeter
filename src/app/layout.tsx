@@ -21,6 +21,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { BalanceProvider } from "@/contexts/BalanceContext";
 import PasscodeWrapper from "@/components/security/PasscodeWrapper";
 import { og } from "@/lib/head";
+import GoToTop from "@/components/extra/GoToTop";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,7 +49,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className="scroll-smooth scroll-p-4 overflow-hidden overflow-y-scroll"
+    >
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
@@ -58,13 +63,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <BalanceProvider>
-            <PasscodeWrapper>
+          <PasscodeWrapper>
+            <BalanceProvider>
               <main className="h-full w-full flex justify-center items-center p-4">
                 {children}
+                <GoToTop />
               </main>
-            </PasscodeWrapper>
-          </BalanceProvider>
+            </BalanceProvider>
+          </PasscodeWrapper>
         </ThemeProvider>
       </body>
     </html>

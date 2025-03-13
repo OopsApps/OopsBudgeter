@@ -29,7 +29,6 @@ import {
   insertTransactionSchema,
   insertTransactionType,
 } from "@/schema/transactionForm";
-import { format } from "date-fns";
 import { Form, FormItem, FormField, FormLabel } from "../ui/form";
 import { DatetimePicker } from "../ui/date";
 
@@ -53,18 +52,28 @@ export default function NewTransaction() {
   const form = useForm<insertTransactionType>({
     resolver: zodResolver(insertTransactionSchema),
     defaultValues: {
-      date: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"),
+      date: new Date(),
     },
   });
 
   const onSubmit = async (data: insertTransactionType) => {
+    const localDate = new Date(data.date);
+    const utcDate = new Date(
+      localDate.getTime() - localDate.getTimezoneOffset() * 60000
+    );
+
+    const formData = {
+      ...data,
+      date: utcDate.toISOString(),
+    };
+
     try {
       const response = await fetch("/api/transactions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(formData),
       });
 
       if (response.ok) {
@@ -161,21 +170,22 @@ export default function NewTransaction() {
                 <FormField
                   control={form.control}
                   name="date"
-                  render={({ }) => (
+                  render={({ field }) => (
                     <FormItem className="flex justify-between">
                       <FormLabel>Date</FormLabel>
-                      <Input
+                      {/* <Input
                         type="datetime-local"
                         className="max-w-3xs md:max-w-sm text-right"
                         {...form.register("date")}
-                      />
-                      {/* <DatetimePicker
+                      /> */}
+                      <DatetimePicker
                         {...field}
+                        value={field.value}
                         format={[
                           ["months", "days", "years"],
                           ["hours", "minutes", "am/pm"],
                         ]}
-                      /> */}
+                      />
                     </FormItem>
                   )}
                 />

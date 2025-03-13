@@ -19,35 +19,44 @@
 import { useEffect, useState } from "react";
 import InExCard from "../cards/InExCard";
 import { useBalance } from "@/contexts/BalanceContext";
+import { fetchTransactions } from "@/lib/api";
+import { selectTransactionType } from "@/schema/transactionForm";
+import { useTransactions } from "@/contexts/TransactionsContext";
 
 export default function Income() {
   const [totalIncome, setTotalIncome] = useState<number>(0);
   const { currentBalance } = useBalance();
+  const { filterTransactions, selectedFilter } = useTransactions();
 
   useEffect(() => {
-    const fetchTotalExpenses = async () => {
+    const fetchTotalIncomes = async () => {
       try {
-        const response = await fetch("/api/transactions");
-        const data = await response.json();
+        const transactions = await fetchTransactions();
 
-        const expenses = data.transactions.filter(
-          (transaction: { type: string; amount: number }) =>
-            transaction.type === "income"
+        const incomes = transactions.filter(
+          (transaction: selectTransactionType) => transaction.type === "income"
         );
 
-        const total = expenses.reduce(
+        const total = incomes.reduce(
           (acc: number, curr: { amount: number }) => acc + curr.amount,
           0
         );
 
-        setTotalIncome(total); 
+        setTotalIncome(total);
       } catch (error) {
         console.error("Error fetching transactions:", error);
       }
     };
 
-    fetchTotalExpenses();
-  }, [currentBalance]); 
+    fetchTotalIncomes();
+  }, [currentBalance]);
 
-  return <InExCard title="Income" amount={totalIncome} />;
+  return (
+    <InExCard
+      title="Income"
+      amount={totalIncome}
+      onClick={() => filterTransactions("income")}
+      className={`${selectedFilter === "income" && "bg-green-500"}`}
+    />
+  );
 }

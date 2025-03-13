@@ -19,43 +19,39 @@
 import React, { useEffect, useState } from "react";
 import HoverEffect from "../effects/HoverEffect";
 import { useBalance } from "@/contexts/BalanceContext";
-import { Transaction } from "@/types/Transaction";
 import SingleTransaction from "./Transaction";
 import { Icon } from "@iconify/react";
 import { printTransactions } from "@/lib/download";
+import { selectTransactionType } from "@/schema/transactionForm";
+import { useTransactions } from "@/contexts/TransactionsContext";
 
 export default function TransactionsList() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<selectTransactionType[]>([]);
   const { currentBalance } = useBalance();
+  const { filteredTransactions } = useTransactions();
 
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [sortKey, setSortKey] = useState<"amount" | "date" | "">("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [sortKey, setSortKey] = useState<"amount" | "date" | "id">("id");
 
   useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        const response = await fetch("/api/transactions");
-        const data = await response.json();
-
-        if (data.transactions) {
-          setTransactions(data.transactions); 
-        }
-      } catch (error) {
-        console.error("Error fetching transactions:", error);
-      }
+    const getTransactions = async () => {
+      const sortedData = [...filteredTransactions].sort((a, b) => b.id - a.id);
+      setTransactions(sortedData);
     };
 
-    fetchTransactions();
-  }, [currentBalance]);
+    getTransactions();
+  }, [currentBalance, filteredTransactions]);
 
   const sortTransactions = () => {
     const sortedTransactions = [...transactions].sort((a, b) => {
       if (sortKey === "amount") {
         return sortOrder === "asc" ? a.amount - b.amount : b.amount - a.amount;
-      } else {
+      } else if (sortKey === "date") {
         const dateA = new Date(a.date).getTime();
         const dateB = new Date(b.date).getTime();
         return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+      } else {
+        return sortOrder === "asc" ? a.id - b.id : b.id - a.id;
       }
     });
 
@@ -79,7 +75,7 @@ export default function TransactionsList() {
             style={{
               color: sortKey === "amount" ? "#fff" : "#3D3D3D",
             }}
-            onClick={() => setSortKey("amount")}
+            onClick={() => setSortKey(sortKey === "amount" ? "id" : "amount")}
             width={24}
           />
           <Icon
@@ -87,7 +83,7 @@ export default function TransactionsList() {
             style={{
               color: sortKey === "date" ? "#fff" : "#3D3D3D",
             }}
-            onClick={() => setSortKey("date")}
+            onClick={() => setSortKey(sortKey === "date" ? "id" : "date")}
             width={24}
           />
           <Icon
@@ -104,8 +100,8 @@ export default function TransactionsList() {
       </div>
       <div className="flex flex-col gap-2">
         {transactions.length > 0 ? (
-          transactions.map((trx: Transaction) => {
-            return <SingleTransaction key={trx.tid} trx={trx} />;
+          transactions.map((trx: selectTransactionType) => {
+            return <SingleTransaction key={trx.id} trx={trx} />;
           })
         ) : (
           <span className="text-center py-7">No transactions found</span>

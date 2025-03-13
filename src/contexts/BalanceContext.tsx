@@ -24,6 +24,7 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
+import { TransactionsProvider } from "./TransactionsContext";
 
 interface BalanceContextType {
   currentBalance: number;
@@ -69,7 +70,7 @@ export const BalanceProvider = ({ children }: { children: ReactNode }) => {
     <BalanceContext.Provider
       value={{ currentBalance, setCurrentBalance, refreshBalance }}
     >
-      {children}
+      <TransactionsProvider>{children}</TransactionsProvider>
     </BalanceContext.Provider>
   );
 };

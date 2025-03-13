@@ -15,21 +15,17 @@
  *   limitations under the License.
  */
 
-import {
-  pgTable,
-  serial,
-  text,
-  timestamp,
-  real,
-  pgEnum,
-} from "drizzle-orm/pg-core";
+import { selectTransactionType } from "@/schema/transactionForm";
 
-export const TypeEnum = pgEnum("TransactionType", ["income", "expense"]);
+export const fetchTransactions = async (): Promise<selectTransactionType[]> => {
+  try {
+    const response = await fetch("/api/transactions");
+    if (!response.ok) throw new Error("Failed to fetch transactions");
 
-export const transactions = pgTable("transactions", {
-  id: serial("id").primaryKey(),
-  type: TypeEnum("type"),
-  amount: real("amount").notNull(),
-  description: text("description"),
-  date: timestamp("date", { mode: "string" }).notNull(),
-});
+    const data = await response.json();
+    return data.transactions;
+  } catch (error) {
+    console.error("🔴 Error fetching transactions:", error);
+    return [];
+  }
+};

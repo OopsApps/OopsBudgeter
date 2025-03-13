@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
         type,
         amount,
         description: description || "No description provided",
-        date: new Date(date),
+        date,
       })
       .returning();
 
