@@ -15,20 +15,37 @@
  *   limitations under the License.
  */
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import HoverEffect from "../effects/HoverEffect";
-import PriceDisplay from "../extra/Currency";
+import PriceDisplay from "../common/Currency";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { Icon } from "@iconify/react";
 
 interface InExCardProps {
   title: "Expenses" | "Income";
   amount: number;
+  onClick?: () => void;
+  className?: string;
+  iconClassName?: string;
 }
 
-export default function InExCard({ amount, title }: Readonly<InExCardProps>) {
+export default function InExCard({
+  amount,
+  title,
+  onClick,
+  className,
+  iconClassName,
+}: Readonly<InExCardProps>) {
+  const [animateText, setAnimateText] = useState(false);
+  useEffect(() => {
+    setAnimateText(true);
+    setTimeout(() => setAnimateText(false), 500);
+  }, [amount]);
+
   return (
     <HoverEffect
-      className="p-2"
+      className={cn("p-2", className)}
       bgColor={
         title === "Expenses"
           ? "linear-gradient(135deg, #8b1c1c, #e24444, #d34f1b)"
@@ -41,10 +58,20 @@ export default function InExCard({ amount, title }: Readonly<InExCardProps>) {
           title === "Expenses" ? "border-[#e24444]" : "border-[#166d3b]"
         )}
       >
-        <h2>{title}</h2>
-        <span>
+        <h2 className="flex gap-1 items-center">
+          {title}
+          <Icon
+            onClick={onClick}
+            icon="line-md:filter"
+            className={iconClassName}
+          />
+        </h2>
+        <motion.span
+          animate={{ y: animateText ? 27 : 0, opacity: animateText ? 0 : 1 }}
+          transition={{ ease: "easeInOut", duration: 0.3 }}
+        >
           <PriceDisplay amount={amount} />
-        </span>
+        </motion.span>
       </div>
     </HoverEffect>
   );

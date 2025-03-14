@@ -27,6 +27,7 @@ interface HoverEffectProps {
   bgColor?: string;
   onClick?: () => void;
   role?: string;
+  isRounded?: boolean;
 }
 
 export default function HoverEffect({
@@ -36,13 +37,14 @@ export default function HoverEffect({
   bgColor = "linear-gradient(135deg, #1c4dac, #1b8adf, #25a6ce, #30ba7c)",
   onClick,
   role,
+  isRounded = false,
 }: Readonly<HoverEffectProps>) {
   const [mouse, parentRef] = useMouse();
 
   return (
     <div
       className={cn(
-        "group h-full w-full relative transform-gpu overflow-hidden rounded-lg p-5 transition-all duration-700 border border-primary/20 hover:border-primary/30 bg-background",
+        "group h-full w-full relative transform-gpu overflow-hidden rounded-lg p-5 transition-all duration-700 border border-primary/20 hover:border-primary/30 bg-background cursor-pointer",
         className
       )}
       onClick={onClick}
@@ -67,7 +69,12 @@ export default function HoverEffect({
           background: bgColor,
         }}
       />
-      <div className="absolute inset-px rounded-lg bg-background/80 -z-10" />
+      <div
+        className={cn(
+          "absolute inset-px rounded-lg bg-background/80 -z-10",
+          isRounded && "rounded-full"
+        )}
+      />
       {children}
     </div>
   );

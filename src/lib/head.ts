@@ -17,45 +17,56 @@
 
 import { Metadata } from "next";
 
-export const og: Metadata = {
-  title: "OopsBudgeter",
-  description: "Track your budget effortlessly with OopsBudgeter.",
-  authors: [{ name: "Laith aka Sleepyico", url: "https://iconical.dev" }],
-  keywords: ["budget", "personal finance", "money tracker", "budgeting app"],
-  manifest: "/manifest.json",
-  openGraph: {
-    type: "website",
-    url: "https://budget.oopsapps.tech",
-    title: "OopsBudgeter",
-    description: "Track your budget effortlessly with OopsBudgeter.",
-    images: [
+interface MetadataProps extends Metadata {
+  title: string;
+  description?: string;
+}
+
+export async function generateMetadata({
+  title,
+  description,
+}: MetadataProps): Promise<Metadata> {
+  return {
+    title: title || "OopsBudgeter",
+    description:
+      description || "Track your budget effortlessly with OopsBudgeter.",
+    authors: [{ name: "Laith aka Sleepyico", url: "https://iconical.dev" }],
+    keywords: ["budget", "personal finance", "money tracker", "budgeting app"],
+    manifest: "/manifest.json",
+    openGraph: {
+      type: "website",
+      url: "https://budget.oopsapps.tech",
+      title: title || "OopsBudgeter",
+      description: "Track your budget effortlessly with OopsBudgeter.",
+      images: [
+        {
+          url: "https://budget.oopsapps.tech/logo.png",
+          width: 500,
+          height: 500,
+          alt: "OopsBudgeter Logo",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      site: "@sleepyiconical",
+      title: title || "OopsBudgeter",
+      description: "Track your budget effortlessly with OopsBudgeter.",
+      images: ["https://budget.oopsapps.tech/logo.png"],
+    },
+    robots: "index, follow",
+    icons: [
       {
-        url: "https://budget.oopsapps.tech/logo.png",
-        width: 500,
-        height: 500,
-        alt: "OopsBudgeter Logo",
+        rel: "icon",
+        href: "/favicon.ico",
+        sizes: "32x32",
+        url: "/favicon.ico",
       },
     ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    site: "@sleepyiconical",
-    title: "OopsBudgeter",
-    description: "Track your budget effortlessly with OopsBudgeter.",
-    images: ["https://budget.oopsapps.tech/logo.png"],
-  },
-  robots: "index, follow",
-  icons: [
-    {
-      rel: "icon",
-      href: "/favicon.ico",
-      sizes: "32x32",
-      url: "/favicon.ico",
+    appleWebApp: {
+      capable: true,
+      title: title || "OopsBudgeter",
+      statusBarStyle: "default",
     },
-  ],
-  appleWebApp: {
-    capable: true,
-    title: "OopsBudgeter",
-    statusBarStyle: "default",
-  },
-};
+  };
+}

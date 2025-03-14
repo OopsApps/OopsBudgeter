@@ -1,17 +1,18 @@
-version: "3"
 services:
-  oopsbudgeter:
-    image: ghcr.io/oopsapps/oopsbudgeter:latest
+  oops-budgeter:
+    image: iconical/oopsbudgeter:latest
     ports:
       - "3333:3000"
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_CURRENCY=USD
-      - PASSCODE=123123
-      - JWT_SECRET=Ithinkyouforgottouseyourown32tokencode
+      - NEXT_PUBLIC_CURRENCY=USD # Set your preferred currency
+      - PASSCODE=123456 # 6-digit passcode for app security
+      - JWT_SECRET=your-secure-jwt-secret # Secret key for JWT authentication
+      - DATABASE_URL=your-postgresql-url # PostgreSQL database connection URL
+
     networks:
-      - oopsbudgeter-network
+      - oops-budgeter-network
 
 networks:
-  oopsbudgeter-network:
+  oops-budgeter-network:
     driver: bridge

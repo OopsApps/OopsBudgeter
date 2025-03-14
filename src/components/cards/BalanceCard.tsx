@@ -16,21 +16,30 @@
  */
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import HoverEffect from "../effects/HoverEffect";
-import PriceDisplay from "../extra/Currency";
-import { useBalance } from "@/contexts/BalanceContext";
+import PriceDisplay from "../common/Currency";
+import { useBudget } from "@/contexts/BudgetContext";
+import { motion } from "framer-motion";
 
 export default function BalanceCard() {
-  const { currentBalance } = useBalance();
+  const { balance } = useBudget();
+  const [animateText, setAnimateText] = useState(false);
+  useEffect(() => {
+    setAnimateText(true);
+    setTimeout(() => setAnimateText(false), 500);
+  }, [balance]);
 
   return (
     <HoverEffect className="p-2">
       <div className="flex flex-col items-center justify-center font-semibold text-foreground">
         <h2>Balance</h2>
-        <span>
-          <PriceDisplay amount={currentBalance} />
-        </span>
+        <motion.span
+          animate={{ y: animateText ? 25 : 0, opacity: animateText ? 0 : 1 }}
+          transition={{ ease: "easeInOut", duration: 0.3 }}
+        >
+          <PriceDisplay amount={balance} />
+        </motion.span>
       </div>
     </HoverEffect>
   );

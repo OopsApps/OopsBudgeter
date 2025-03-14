@@ -15,101 +15,45 @@
  *   limitations under the License.
  */
 
-import { Transaction } from "@/types/Transaction";
+import { selectTransactionType } from "@/schema/transactionForm";
+import { saveAs } from "file-saver";
 
-export const printTransactions = (transactions: Transaction[]) => {
+export const printTransactions = (transactions: selectTransactionType[]) => {
   const printWindow = window.open("", "_blank");
   if (printWindow) {
     printWindow.document.write(`
       <html>
         <head>
           <title>All Transactions</title>
-          <style>
-            body {
-              font-family: 'Arial', sans-serif;
-              margin: 0;
-              padding: 0;
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-              align-items: center;
-              height: 100vh;
-              background-color: #f4f7f6;
-            }
-            h1 {
-              text-align: center;
-              font-size: 2.5rem;
-              margin-bottom: 20px;
-              color: #333;
-            }
-            table {
-              border-collapse: collapse;
-              width: 80%;
-              max-width: 1000px;
-              margin: 0 auto;
-              border: 1px solid #ddd;
-              background-color: white;
-              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            }
-            th, td {
-              padding: 15px;
-              text-align: center;
-              border: 1px solid #ddd;
-            }
-            th {
-              background-color: #4CAF50;
-              color: white;
-              font-size: 1.2rem;
-            }
-            td {
-              font-size: 1rem;
-              color: #333;
-            }
-            tr:nth-child(even) {
-              background-color: #f2f2f2;
-            }
-            tr:hover {
-              background-color: #e9e9e9;
-            }
-            @media print {
-              body {
-                height: auto;
-                margin: 0;
-                padding: 20px;
-              }
-              table {
-                width: 100%;
-                box-shadow: none;
-              }
-              h1 {
-                font-size: 2rem;
-              }
-            }
-          </style>
+          <script src="https://cdn.tailwindcss.com"></script>
         </head>
-        <body>
+        <body class="bg-gray-100 flex flex-col items-center p-6">
           <h1 class="text-2xl font-semibold mb-6">Transactions List</h1>
-          <table class="table-auto mx-auto border-collapse shadow-lg">
+          <table class="w-4/5 max-w-4xl border-collapse shadow-lg bg-white">
             <thead class="bg-green-500 text-white">
               <tr>
-                <th class="px-4 py-2 text-sm font-medium">ID</th>
-                <th class="px-4 py-2 text-sm font-medium">Type</th>
-                <th class="px-4 py-2 text-sm font-medium">Amount</th>
-                <th class="px-4 py-2 text-sm font-medium">Description</th>
-                <th class="px-4 py-2 text-sm font-medium">Date</th>
+                <th class="px-4 py-2 text-sm font-medium border">ID</th>
+                <th class="px-4 py-2 text-sm font-medium border">Type</th>
+                <th class="px-4 py-2 text-sm font-medium border">Category</th>
+                <th class="px-4 py-2 text-sm font-medium border">Amount</th>
+                <th class="px-4 py-2 text-sm font-medium border max-w-md truncate">Description</th>
+                <th class="px-4 py-2 text-sm font-medium border">Date</th>
               </tr>
             </thead>
             <tbody class="text-sm">
               ${transactions
                 .map(
                   (trx) => `
-                    <tr>
-                      <td class="border px-4 py-2">${trx.tid}</td>
+                    <tr class="odd:bg-gray-100 even:bg-white hover:bg-gray-200">
+                      <td class="border px-4 py-2">${trx.id}</td>
                       <td class="border px-4 py-2">${trx.type}</td>
+                      <td class="border px-4 py-2">${trx.category}</td>
                       <td class="border px-4 py-2">${trx.amount} ${
                     process.env.NEXT_PUBLIC_CURRENCY
                   }</td>
-                      <td class="border px-4 py-2">${trx.description}</td>
+                      <td class="border px-4 py-2 max-w-md break-words">${
+                        trx.description
+                      }</td>
                       <td class="border px-4 py-2">${new Date(
                         trx.date
                       ).toLocaleString()}</td>
@@ -125,4 +69,34 @@ export const printTransactions = (transactions: Transaction[]) => {
     printWindow.document.close();
     printWindow.print();
   }
+};
+
+export const exportTransactions = (transactions: selectTransactionType[]) => {
+  const csvContent =
+    "data:text/csv;charset=utf-8," +
+    ["Date,Category,Amount,Type,Description"]
+      .concat(
+        transactions.map((trx) =>
+          [trx.type, trx.amount, trx.date, trx.category, trx.description].join(
+            ","
+          )
+        )
+      )
+      .join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  saveAs(blob, "transactions.csv");
+};
+
+export const downloadJSON = (transactions: selectTransactionType[]) => {
+  const jsonData = JSON.stringify(transactions, null, 2);
+  const blob = new Blob([jsonData], { type: "application/json" });
+
+  const downloadAnchor = document.createElement("a");
+  downloadAnchor.href = URL.createObjectURL(blob);
+  downloadAnchor.download = "transactions.json";
+
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  document.body.removeChild(downloadAnchor);
 };

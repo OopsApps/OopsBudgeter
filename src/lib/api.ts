@@ -15,10 +15,18 @@
  *   limitations under the License.
  */
 
-export interface Transaction {
-  tid: number;
-  type: "income" | "expense";
-  amount: number;
-  description: string;
-  date: string;
-}
+import { selectTransactionType } from "@/schema/transactionForm";
+import { toast } from "sonner";
+
+export const fetchTransactions = async (): Promise<selectTransactionType[]> => {
+  try {
+    const response = await fetch("/api/transactions");
+    if (!response.ok) throw new Error("Failed to fetch transactions");
+
+    const data = await response.json();
+    return data.transactions;
+  } catch (error) {
+    toast.error(`Error fetching transactions: ${error}`);
+    return [];
+  }
+};

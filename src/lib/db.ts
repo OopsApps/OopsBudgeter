@@ -14,17 +14,12 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-const currencyCode = process.env.NEXT_PUBLIC_CURRENCY || "USD";
 
-const formatCurrency = (amount: number, currency: string) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency,
-  }).format(amount);
-};
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 
-export default function PriceDisplay({ amount }: { amount: number }) {
-  const currency = currencyCode;
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
-  return <div>{formatCurrency(amount, currency)}</div>;
-}
+export const db = drizzle(pool);

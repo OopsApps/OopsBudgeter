@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1741735509151,
+      "tag": "0000_melodic_purifiers",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1741817547280,
+      "tag": "0001_yellow_thena",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1741819338790,
+      "tag": "0002_icy_phil_sheldon",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1741921373765,
+      "tag": "0003_lonely_bill_hollister",
+      "breakpoints": true
+    }
+  ]
+}
