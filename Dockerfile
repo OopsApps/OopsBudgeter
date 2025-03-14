@@ -17,6 +17,7 @@ COPY --from=builder /app/.next .next
 COPY --from=builder /app/public public
 COPY --from=builder /app/package.json .
 COPY --from=builder /app/bun.lockb .
+COPY --from=builder /app/drizzle drizzle
 COPY --from=builder /app/src/schema src/schema
 COPY --from=builder /app/drizzle.config.ts drizzle.config.ts
 
@@ -26,4 +27,4 @@ RUN bun add -g drizzle-kit
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "bunx drizzle-kit migrate --config=drizzle.config.ts && bun start"]
+CMD ["sh", "-c", "bunx drizzle-kit push --config=drizzle.config.ts && bun start"]
