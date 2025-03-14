@@ -16,46 +16,29 @@
  */
 
 import React from "react";
-import HoverEffect from "../effects/HoverEffect";
 import PriceDisplay from "./Currency";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { useBalance } from "@/contexts/BalanceContext";
 import { formatDate } from "@/lib/formateDate";
 import { selectTransactionType } from "@/schema/transactionForm";
+import { handleDelete } from "@/lib/api";
+import TxCard from "../cards/TxCard";
 
 export default function SingleTransaction({
   trx,
 }: Readonly<{ trx: selectTransactionType }>) {
-  const { refreshBalance } = useBalance();
-
-  const handleDelete = async (id: number) => {
-    const response = await fetch("/api/transactions", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      refreshBalance();
-    } else {
-      console.error(`Error: ${data.message}`);
-    }
-  };
   return (
-    <HoverEffect
-      bgColor={trx.type === "income" ? "#2DAC64" : "#e24444"}
-      className="p-3"
+    <TxCard
+      bgColor={trx.type === "income" ? "#2DAC6420" : "#e2444420"}
+      className="p-3 "
     >
       <div className="flex flex-col md:flex-row justify-between items-center">
         <div className="flex flex-col">
           <span className="max-w-56 sm:max-w-md break-words">
             {trx.description}
           </span>
-          <span className="text-muted-foreground">{formatDate(trx.date)}</span>
+          <span className="text-muted-foreground">
+            {formatDate(trx.date)}
+          </span>
         </div>
         <span
           className="font-bold"
@@ -72,6 +55,6 @@ export default function SingleTransaction({
         width={18}
         className="hover:text-white text-red-400 transition-colors absolute top-1 right-1"
       />
-    </HoverEffect>
+    </TxCard>
   );
 }

@@ -18,10 +18,11 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
-import { BalanceProvider } from "@/contexts/BalanceContext";
 import PasscodeWrapper from "@/components/security/PasscodeWrapper";
 import { og } from "@/lib/head";
 import GoToTop from "@/components/extra/GoToTop";
+import { BudgetProvider } from "@/contexts/BudgetContext";
+import Toaster from "@/components/extra/Sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -64,12 +65,13 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <PasscodeWrapper>
-            <BalanceProvider>
+            <BudgetProvider>
               <main className="h-full w-full flex justify-center items-center p-4">
                 {children}
-                <GoToTop />
               </main>
-            </BalanceProvider>
+              <GoToTop />
+              <Toaster />
+            </BudgetProvider>
           </PasscodeWrapper>
         </ThemeProvider>
       </body>

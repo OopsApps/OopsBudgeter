@@ -44,7 +44,7 @@ export default function HoverEffect({
   return (
     <div
       className={cn(
-        "group h-full w-full relative transform-gpu overflow-hidden rounded-lg p-5 transition-all duration-700 border border-primary/20 hover:border-primary/30 bg-background",
+        "group h-full w-full relative transform-gpu overflow-hidden rounded-lg p-5 transition-all duration-700 border border-primary/20 hover:border-primary/30 bg-background cursor-pointer",
         className
       )}
       onClick={onClick}

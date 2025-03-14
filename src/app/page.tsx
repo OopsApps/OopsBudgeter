@@ -1,4 +1,5 @@
 import BalanceCard from "@/components/cards/BalanceCard";
+import DateRangePicker from "@/components/extra/DatePicker";
 import Expense from "@/components/extra/Expense";
 import Income from "@/components/extra/Income";
 import Logo from "@/components/extra/Logo";
@@ -19,6 +20,7 @@ export default function Home() {
         </div>
       </div>
       <NewTransaction />
+      <DateRangePicker />
       <TransactionsList />
     </main>
   );

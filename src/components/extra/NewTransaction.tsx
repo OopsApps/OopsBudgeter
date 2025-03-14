@@ -22,7 +22,6 @@ import HoverEffect from "../effects/HoverEffect";
 import { Icon } from "@iconify/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useBalance } from "@/contexts/BalanceContext";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import {
@@ -31,22 +30,16 @@ import {
 } from "@/schema/transactionForm";
 import { Form, FormItem, FormField, FormLabel } from "../ui/form";
 import { DatetimePicker } from "../ui/date";
+import { toast } from "sonner";
+import { useBudget } from "@/contexts/BudgetContext";
 
 export default function NewTransaction() {
-  const [successMessage, setSuccessMessage] = useState<string>("");
-  const { refreshBalance } = useBalance();
   const [type, setType] = useState<"income" | "expense">("income");
-  const [popupVisible, setPopupVisible] = useState(false);
+  const { addTransaction } = useBudget();
 
   const handleToggle = (selectedType: "income" | "expense") => {
     setType(selectedType);
     form.setValue("type", selectedType);
-  };
-
-  const showPopup = (message: string) => {
-    setSuccessMessage(message);
-    setPopupVisible(true);
-    setTimeout(() => setPopupVisible(false), 3000);
   };
 
   const form = useForm<insertTransactionType>({
@@ -76,13 +69,26 @@ export default function NewTransaction() {
         body: JSON.stringify(formData),
       });
 
+      const result = await response.json();
+
       if (response.ok) {
-        refreshBalance();
+        addTransaction(result.transaction);
+        toast.success(
+          formData.type === "income"
+            ? "Income added successfully! 💰"
+            : "Expense recorded! 💸"
+        );
+        const audio = new Audio(
+          formData.type === "income"
+            ? "/audio/new-expense.wav"
+            : "/audio/new-income.wav"
+        );
+        audio.volume = 0.1;
+        audio.play();
         form.reset();
-        showPopup("Transaction added successfully!");
       }
     } catch (err) {
-      showPopup(`Something went wrong: ${err}`);
+      toast.error(`Something went wrong: ${err}`);
     }
   };
 
@@ -173,11 +179,6 @@ export default function NewTransaction() {
                   render={({ field }) => (
                     <FormItem className="flex justify-between">
                       <FormLabel>Date</FormLabel>
-                      {/* <Input
-                        type="datetime-local"
-                        className="max-w-3xs md:max-w-sm text-right"
-                        {...form.register("date")}
-                      /> */}
                       <DatetimePicker
                         {...field}
                         value={field.value}
@@ -199,15 +200,6 @@ export default function NewTransaction() {
                 Add Transaction
               </HoverEffect>
 
-              <div
-                className={`fixed -bottom-4 left-1/2 transform -translate-x-1/2 w-80 bg-green-600/20 text-green-500 rounded-lg p-2 px-4 transition-all duration-300 ${
-                  popupVisible
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-10"
-                }`}
-              >
-                {successMessage && <p>{successMessage}</p>}
-              </div>
               <div
                 className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 w-80 text-red-500 rounded-lg bg-red-950 p-2 px-4 transition-all text-base duration-300 ${
                   form.formState.errors.amount ||

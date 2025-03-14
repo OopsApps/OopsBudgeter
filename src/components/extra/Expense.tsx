@@ -16,47 +16,23 @@
  */
 "use client";
 
-import { useEffect, useState } from "react";
 import InExCard from "../cards/InExCard";
-import { useBalance } from "@/contexts/BalanceContext";
-import { fetchTransactions } from "@/lib/api";
-import { selectTransactionType } from "@/schema/transactionForm";
-import { useTransactions } from "@/contexts/TransactionsContext";
+import { useBudget } from "@/contexts/BudgetContext";
 
 export default function Expense() {
-  const [totalExpense, setTotalExpense] = useState<number>(0);
-  const { currentBalance } = useBalance();
-  const { filterTransactions, selectedFilter } = useTransactions();
-
-  useEffect(() => {
-    const fetchTotalExpenses = async () => {
-      try {
-        const transactions = await fetchTransactions();
-
-        const expenses = transactions.filter(
-          (transaction: selectTransactionType) => transaction.type === "expense"
-        );
-
-        const total = expenses.reduce(
-          (acc: number, curr: { amount: number }) => acc + curr.amount,
-          0
-        );
-
-        setTotalExpense(total);
-      } catch (error) {
-        console.error("Error fetching transactions:", error);
-      }
-    };
-
-    fetchTotalExpenses();
-  }, [currentBalance]);
+  const { totalExpense, transactionTypeFilter, filterByType } = useBudget();
 
   return (
     <InExCard
       title="Expenses"
       amount={totalExpense}
-      onClick={() => filterTransactions("expense")}
-      className={`${selectedFilter === "expense" && "bg-red-500"}`}
+      onClick={() =>
+        filterByType(transactionTypeFilter === "expense" ? "all" : "expense")
+      }
+      className={`${transactionTypeFilter === "expense" && "bg-red-500"}`}
+      iconClassName={`${
+        transactionTypeFilter === "expense" && "text-[#e24444]"
+      }`}
     />
   );
 }

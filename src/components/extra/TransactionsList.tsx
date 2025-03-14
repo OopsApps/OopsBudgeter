@@ -16,91 +16,29 @@
  */
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import HoverEffect from "../effects/HoverEffect";
-import { useBalance } from "@/contexts/BalanceContext";
 import SingleTransaction from "./Transaction";
 import { Icon } from "@iconify/react";
 import { printTransactions } from "@/lib/download";
 import { selectTransactionType } from "@/schema/transactionForm";
-import { useTransactions } from "@/contexts/TransactionsContext";
+import { useBudget } from "@/contexts/BudgetContext";
+import SortButtons from "./SortButtons";
 
 export default function TransactionsList() {
-  const [transactions, setTransactions] = useState<selectTransactionType[]>([]);
-  const { currentBalance } = useBalance();
-  const { filteredTransactions } = useTransactions();
-
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [sortKey, setSortKey] = useState<"amount" | "date" | "id">("id");
-
-  useEffect(() => {
-    const getTransactions = async () => {
-      const sortedData = [...filteredTransactions].sort((a, b) => b.id - a.id);
-      setTransactions(sortedData);
-    };
-
-    getTransactions();
-  }, [currentBalance, filteredTransactions]);
-
-  const sortTransactions = () => {
-    const sortedTransactions = [...transactions].sort((a, b) => {
-      if (sortKey === "amount") {
-        return sortOrder === "asc" ? a.amount - b.amount : b.amount - a.amount;
-      } else if (sortKey === "date") {
-        const dateA = new Date(a.date).getTime();
-        const dateB = new Date(b.date).getTime();
-        return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
-      } else {
-        return sortOrder === "asc" ? a.id - b.id : b.id - a.id;
-      }
-    });
-
-    setTransactions(sortedTransactions);
-  };
-
-  useEffect(() => {
-    sortTransactions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortOrder, sortKey]);
+  const { filteredTransactions } = useBudget();
 
   return (
     <HoverEffect bgColor="#3D3D3D">
-      <div className="flex justify-between">
+      <div className="flex justify-between flex-col">
         <h2 className="font-semibold text-xl mb-4 border-b-2 border-primary/24">
           Transactions
         </h2>
-        <div className="flex gap-2 bg-secondary rounded-lg items-center justify-center py-1 px-3 mb-2 group">
-          <Icon
-            icon="mdi:cash-multiple"
-            style={{
-              color: sortKey === "amount" ? "#fff" : "#3D3D3D",
-            }}
-            onClick={() => setSortKey(sortKey === "amount" ? "id" : "amount")}
-            width={24}
-          />
-          <Icon
-            icon="lets-icons:date-fill"
-            style={{
-              color: sortKey === "date" ? "#fff" : "#3D3D3D",
-            }}
-            onClick={() => setSortKey(sortKey === "date" ? "id" : "date")}
-            width={24}
-          />
-          <Icon
-            icon={
-              sortOrder === "asc"
-                ? "gravity-ui:bars-ascending-align-left-arrow-up"
-                : "gravity-ui:bars-descending-align-left-arrow-down"
-            }
-            className="transition-all ease-in-out text-[#5374aa] rounded-md"
-            onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-            width={24}
-          />
-        </div>
+        <SortButtons />
       </div>
       <div className="flex flex-col gap-2">
-        {transactions.length > 0 ? (
-          transactions.map((trx: selectTransactionType) => {
+        {filteredTransactions.length > 0 ? (
+          filteredTransactions.map((trx: selectTransactionType) => {
             return <SingleTransaction key={trx.id} trx={trx} />;
           })
         ) : (
@@ -110,7 +48,7 @@ export default function TransactionsList() {
       <div className="border-t-2 mt-4" />
       <div
         className="mt-4 flex justify-center items-center gap-4 cursor-pointer"
-        onClick={() => printTransactions(transactions)}
+        onClick={() => printTransactions(filteredTransactions)}
       >
         Print all transactions
         <Icon

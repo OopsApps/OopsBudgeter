@@ -28,9 +28,10 @@ export default function Logo() {
         src={theme === "light" ? "/logo.png" : "/logo_dark.png"}
         width={512}
         height={512}
-        className="h-8 w-8"
+        className="h-9 w-9"
+        draggable={false}
       />
-      <h2>OopsBudgeter</h2>
+      <h2 className="text-2xl font-semibold">OopsBudgeter</h2>
     </span>
   );
 }

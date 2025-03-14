@@ -1,6 +1,5 @@
-version: "3"
 services:
-  oopsbudgeter:
+  oops-budgeter:
     image: iconical/oopsbudgeter:latest
     ports:
       - "3333:3000"
@@ -9,9 +8,10 @@ services:
       - NEXT_PUBLIC_CURRENCY=USD
       - PASSCODE=123123
       - JWT_SECRET=Ithinkyouforgottouseyourown32tokencode
+      - DATABASE="postgresql://maybelikeauserhere?:andapasswordheretoo?@somerandomipiguess:aportlol/OopsBudgeterDBorsomerandomname?sslmode=require"
     networks:
-      - oopsbudgeter-network
+      - oops-budgeter-network
 
 networks:
-  oopsbudgeter-network:
+  oops-budgeter-network:
     driver: bridge

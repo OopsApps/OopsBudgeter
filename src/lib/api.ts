@@ -16,6 +16,7 @@
  */
 
 import { selectTransactionType } from "@/schema/transactionForm";
+import { toast } from "sonner";
 
 export const fetchTransactions = async (): Promise<selectTransactionType[]> => {
   try {
@@ -25,7 +26,28 @@ export const fetchTransactions = async (): Promise<selectTransactionType[]> => {
     const data = await response.json();
     return data.transactions;
   } catch (error) {
-    console.error("🔴 Error fetching transactions:", error);
+    toast.error(`Error fetching transactions: ${error}`);
     return [];
+  }
+};
+
+export const handleDelete = async (id: number): Promise<void> => {
+  const response = await fetch("/api/transactions", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ id }),
+  });
+
+  const data = await response.json();
+
+  if (response.ok) {
+    toast.success("The transaction has been deleted successfully");
+    const audio = new Audio("/audio/delete.wav");
+    audio.volume = 0.4;
+    audio.play();
+  } else {
+    console.error(`Error: ${data.message}`);
   }
 };
