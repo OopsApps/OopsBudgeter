@@ -17,7 +17,7 @@
 
 import React, { useEffect, useState } from "react";
 import HoverEffect from "../effects/HoverEffect";
-import PriceDisplay from "../extra/Currency";
+import PriceDisplay from "../common/Currency";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -67,7 +67,7 @@ export default function InExCard({
           />
         </h2>
         <motion.span
-          animate={{ y: animateText ? 25 : 0, opacity: animateText ? 0 : 1 }}
+          animate={{ y: animateText ? 27 : 0, opacity: animateText ? 0 : 1 }}
           transition={{ ease: "easeInOut", duration: 0.3 }}
         >
           <PriceDisplay amount={amount} />

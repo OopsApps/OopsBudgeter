@@ -17,12 +17,12 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/providers/theme-provider";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import PasscodeWrapper from "@/components/security/PasscodeWrapper";
 import { og } from "@/lib/head";
-import GoToTop from "@/components/extra/GoToTop";
+import GoToTop from "@/components/helpers/GoToTop";
 import { BudgetProvider } from "@/contexts/BudgetContext";
-import Toaster from "@/components/extra/Sonner";
+import Toaster from "@/components/effects/Sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,11 +52,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      suppressHydrationWarning
+      suppressHydrationWarning={true}
       className="scroll-smooth scroll-p-4 overflow-hidden overflow-y-scroll"
     >
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-w-full`}
+        suppressHydrationWarning={true}
       >
         <ThemeProvider
           attribute="class"

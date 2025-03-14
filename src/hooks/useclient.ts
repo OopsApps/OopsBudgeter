@@ -14,17 +14,16 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-const currencyCode = process.env.NEXT_PUBLIC_CURRENCY || "USD";
+"use client";
 
-const formatCurrency = (amount: number, currency: string) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency,
-  }).format(amount);
-};
+import { useEffect, useState } from "react";
 
-export default function PriceDisplay({ amount }: { amount: number }) {
-  const currency = currencyCode;
+export function useIsClient() {
+  const [isClient, setIsClient] = useState(false);
 
-  return <div>{formatCurrency(amount, currency)}</div>;
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  return isClient;
 }

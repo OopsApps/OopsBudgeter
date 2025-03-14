@@ -14,19 +14,23 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
+const currencyCode = process.env.NEXT_PUBLIC_CURRENCY || "USD";
 
-import { selectTransactionType } from "@/schema/transactionForm";
-import { toast } from "sonner";
-
-export const fetchTransactions = async (): Promise<selectTransactionType[]> => {
-  try {
-    const response = await fetch("/api/transactions");
-    if (!response.ok) throw new Error("Failed to fetch transactions");
-
-    const data = await response.json();
-    return data.transactions;
-  } catch (error) {
-    toast.error(`Error fetching transactions: ${error}`);
-    return [];
-  }
+const formatCurrency = (amount: number, currency: string) => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency,
+  }).format(amount);
 };
+
+export default function PriceDisplay({
+  amount,
+  className,
+}: {
+  amount: number;
+  className?: string;
+}) {
+  const currency = currencyCode;
+
+  return <span className={className}>{formatCurrency(amount, currency)}</span>;
+}

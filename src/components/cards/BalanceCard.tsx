@@ -18,7 +18,7 @@
 
 import React, { useEffect, useState } from "react";
 import HoverEffect from "../effects/HoverEffect";
-import PriceDisplay from "../extra/Currency";
+import PriceDisplay from "../common/Currency";
 import { useBudget } from "@/contexts/BudgetContext";
 import { motion } from "framer-motion";
 

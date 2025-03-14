@@ -29,12 +29,22 @@ import {
   insertTransactionType,
 } from "@/schema/transactionForm";
 import { Form, FormItem, FormField, FormLabel } from "../ui/form";
-import { DatetimePicker } from "../ui/date";
 import { toast } from "sonner";
+import { format } from "date-fns";
 import { useBudget } from "@/contexts/BudgetContext";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { expenseCategories, incomeCategories } from "@/lib/categories";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 export default function NewTransaction() {
   const [type, setType] = useState<"income" | "expense">("income");
+
   const { addTransaction } = useBudget();
 
   const handleToggle = (selectedType: "income" | "expense") => {
@@ -46,6 +56,7 @@ export default function NewTransaction() {
     resolver: zodResolver(insertTransactionSchema),
     defaultValues: {
       date: new Date(),
+      category: "None",
     },
   });
 
@@ -95,13 +106,17 @@ export default function NewTransaction() {
   return (
     <Drawer>
       <DrawerTrigger asChild>
-        <HoverEffect className="max-w-60 max-h-10 flex items-center justify-center gap-2 bg-blue-500/50 ">
+        <HoverEffect className="max-w-60 max-h-10 flex items-center justify-center gap-2 bg-blue-500/50">
           <Icon icon="line-md:text-box-multiple-twotone-to-text-box-twotone-transition" />
-          New Transaction
+          <span className="text-black dark:text-white">New Transaction</span>
         </HoverEffect>
       </DrawerTrigger>
-      <DrawerContent>
-        <div className="h-[420px] flex flex-col gap-4 justify-center items-center">
+      <DrawerContent
+        aria-describedby="Adding a new transaction menu"
+        className="pb-20"
+      >
+        <DialogTitle className="hidden">Add a new transaction</DialogTitle>
+        <div className="h-full flex flex-col gap-4 justify-center items-center">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
@@ -112,7 +127,6 @@ export default function NewTransaction() {
                 name="type"
                 render={({}) => (
                   <FormItem className="flex justify-center items-center mb-4 space-x-2">
-                    <FormLabel></FormLabel>
                     <button
                       type="button"
                       className={`px-6 py-2 rounded-lg text-white font-semibold transition duration-300 ${
@@ -141,6 +155,37 @@ export default function NewTransaction() {
               />
 
               <div className="flex flex-col gap-4 px-4 md:px-0">
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem className="flex justify-between">
+                      <FormLabel>Category</FormLabel>
+                      <Select
+                        defaultValue={field.value || "None"}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder={field.value || "None"} />
+                        </SelectTrigger>
+                        <SelectContent
+                          className="max-w-3xs md:max-w-sm"
+                          aria-describedby="Select a category"
+                        >
+                          {(type === "income"
+                            ? incomeCategories
+                            : expenseCategories
+                          ).map((cat, idx) => (
+                            <SelectItem key={`${cat}-${idx}`} value={cat}>
+                              {cat}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="amount"
@@ -179,13 +224,19 @@ export default function NewTransaction() {
                   render={({ field }) => (
                     <FormItem className="flex justify-between">
                       <FormLabel>Date</FormLabel>
-                      <DatetimePicker
+                      <input
                         {...field}
-                        value={field.value}
-                        format={[
-                          ["months", "days", "years"],
-                          ["hours", "minutes", "am/pm"],
-                        ]}
+                        type="datetime-local"
+                        className="border p-2 rounded-md text-base max-w-3xs md:max-w-sm w-full"
+                        value={
+                          field.value
+                            ? format(
+                                new Date(field.value),
+                                "yyyy-MM-dd'T'HH:mm:ss"
+                              )
+                            : ""
+                        }
+                        onChange={(e) => field.onChange(e.target.value)}
                       />
                     </FormItem>
                   )}
@@ -195,7 +246,7 @@ export default function NewTransaction() {
               <HoverEffect
                 onClick={form.handleSubmit(onSubmit)}
                 role="button"
-                className="cursor-pointer rounded-lg text-center font-semibold flex justify-center items-center bg-blue-600 text-white max-h-10"
+                className="cursor-pointer rounded-lg text-center font-semibold flex justify-center items-center bg-blue-600 text-black dark:text-white max-h-10"
               >
                 Add Transaction
               </HoverEffect>

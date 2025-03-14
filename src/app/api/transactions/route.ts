@@ -21,6 +21,7 @@ import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import { expenseCategories, incomeCategories } from "@/lib/categories";
 
 const SECRET = process.env.JWT_SECRET as string;
 
@@ -58,7 +59,6 @@ export async function GET(req: NextRequest) {
 
   try {
     const transactionsList = await db.select().from(transactions);
-
     return NextResponse.json({
       user,
       transactions: transactionsList,
@@ -82,15 +82,26 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { type, amount, description, date } = await req.json();
+    const { type, amount, description, date, category } = await req.json();
+    console.log(`🟢 Requested cat: ${category}`);
+
+    const validCategories =
+      type === "income" ? incomeCategories : expenseCategories;
+    if (!validCategories.includes(category)) {
+      return NextResponse.json(
+        { message: `Invalid category for type '${type}'` },
+        { status: 400 }
+      );
+    }
 
     const newTransaction = await db
       .insert(transactions)
       .values({
         type,
         amount,
-        description: description || "No description provided",
+        description: description || "",
         date,
+        category,
       })
       .returning();
 

@@ -26,10 +26,29 @@ import {
 
 export const TypeEnum = pgEnum("TransactionType", ["income", "expense"]);
 
+export const IncomeCategories = pgEnum("IncomeCategories", [
+  "Salary",
+  "Freelance",
+  "Investment",
+  "Bonus",
+  "Other",
+]);
+
+export const ExpenseCategories = pgEnum("ExpenseCategories", [
+  "Food",
+  "Rent",
+  "Utilities",
+  "Transport",
+  "Entertainment",
+  "Shopping",
+  "Other",
+]);
+
 export const transactions = pgTable("transactions", {
   id: serial("id").primaryKey(),
   type: TypeEnum("type"),
   amount: real("amount").notNull(),
   description: text("description"),
   date: timestamp("date", { mode: "string" }).notNull(),
+  category: text("category"),
 });

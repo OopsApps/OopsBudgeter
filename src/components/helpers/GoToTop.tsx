@@ -20,27 +20,33 @@
 import React, { useEffect, useState } from "react";
 import HoverEffect from "../effects/HoverEffect";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import { useIsClient } from "@/hooks/useclient";
 
 export default function GoToTop() {
   const [position, setPosition] = useState(0);
   const [isUpActive, setIsUpActive] = useState(false);
   const [isDownActive, setIsDownActive] = useState(false);
 
+  const isClient = useIsClient();
+
+  const goToTop = () => {
+    if (!isClient) return;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const goToBottom = () => {
+    if (!isClient) return;
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  };
+
   useEffect(() => {
+    if (!isClient) return;
     window.addEventListener("scroll", () => setPosition(window.scrollY));
     setIsUpActive(position > 100);
     setIsDownActive(position < document.body.scrollHeight);
 
     return () => window.removeEventListener("scroll", () => setPosition(0));
-  }, [isUpActive, position]);
-
-  const goToTop = () => {
-    window.scrollTo(0, 0);
-  };
-
-  const goToBottom = () => {
-    window.scrollTo(0, document.body.scrollHeight);
-  };
+  }, [isUpActive, position, isClient]);
 
   return (
     <div className="right-6 bottom-3 z-50 fixed items-center md:space-x-2 flex flex-col md:flex-row gap-2 md:gap-0">

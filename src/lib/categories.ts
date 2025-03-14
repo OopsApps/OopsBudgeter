@@ -15,18 +15,22 @@
  *   limitations under the License.
  */
 
-import { selectTransactionType } from "@/schema/transactionForm";
-import { toast } from "sonner";
+export const incomeCategories = [
+  "None",
+  "Salary",
+  "Freelance",
+  "Investment",
+  "Bonus",
+  "Other",
+];
 
-export const fetchTransactions = async (): Promise<selectTransactionType[]> => {
-  try {
-    const response = await fetch("/api/transactions");
-    if (!response.ok) throw new Error("Failed to fetch transactions");
-
-    const data = await response.json();
-    return data.transactions;
-  } catch (error) {
-    toast.error(`Error fetching transactions: ${error}`);
-    return [];
-  }
-};
+export const expenseCategories = [
+  "None",
+  "Food",
+  "Rent",
+  "Utilities",
+  "Transport",
+  "Entertainment",
+  "Shopping",
+  "Other",
+];

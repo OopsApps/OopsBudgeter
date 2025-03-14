@@ -33,7 +33,13 @@
  */
 "use client";
 
-import { type RefObject, useLayoutEffect, useRef, useState } from "react";
+import {
+  type RefObject,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { useIsClient } from "./useclient";
 
 export interface MouseState {
   x: number | null;
@@ -45,6 +51,8 @@ export interface MouseState {
 }
 
 export function useMouse(): [MouseState, RefObject<HTMLDivElement | null>] {
+  const isClient = useIsClient();
+
   const [state, setState] = useState<MouseState>({
     x: null,
     y: null,
@@ -57,6 +65,7 @@ export function useMouse(): [MouseState, RefObject<HTMLDivElement | null>] {
   const ref = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
+    if (!isClient) return;
     const handleMouseMove = (event: MouseEvent) => {
       const newState: Partial<MouseState> = {
         x: event.pageX,
@@ -87,7 +96,7 @@ export function useMouse(): [MouseState, RefObject<HTMLDivElement | null>] {
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
     };
-  }, []);
+  }, [isClient]);
 
   return [state, ref];
 }

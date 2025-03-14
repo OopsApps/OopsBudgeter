@@ -1,11 +1,11 @@
 import BalanceCard from "@/components/cards/BalanceCard";
-import DateRangePicker from "@/components/extra/DatePicker";
-import Expense from "@/components/extra/Expense";
-import Income from "@/components/extra/Income";
-import Logo from "@/components/extra/Logo";
-import NewTransaction from "@/components/extra/NewTransaction";
-import { ThemeToggle } from "@/components/extra/ThemeToggle";
-import TransactionsList from "@/components/extra/TransactionsList";
+import DateRangePicker from "@/components/common/DatePicker";
+import Expense from "@/components/categories/Expense";
+import Income from "@/components/categories/Income";
+import Logo from "@/components/common/Logo";
+import { ThemeToggle } from "@/components/common/ThemeToggle";
+import NewTransaction from "@/components/transactions/NewTransaction";
+import TransactionsList from "@/components/transactions/TransactionsList";
 
 export default function Home() {
   return (
@@ -14,7 +14,7 @@ export default function Home() {
       <ThemeToggle />
       <div className="flex flex-col gap-2 w-full relative">
         <BalanceCard />
-        <div className="flex gap-2">
+        <div className="flex flex-col md:flex-row gap-2">
           <Income />
           <Expense />
         </div>

@@ -1,3 +1,5 @@
+TODO: The app is complete yet I need to change some stuff in regards to the analytics tab
+
 # OopsBudgeter
 
 OopsBudgeter is a personal finance management app designed to help users track their income and expenses. Built with **Next.js**, **React**, and **Tailwind CSS**, the app is **PWA** (Progressive Web App)-enabled and can be easily self-hosted with Docker.

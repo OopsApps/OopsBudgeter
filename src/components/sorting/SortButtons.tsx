@@ -18,6 +18,7 @@
 import { useBudget } from "@/contexts/BudgetContext";
 import { Icon } from "@iconify/react";
 import React from "react";
+import SortButton from "./SortButton";
 
 export default function SortButtons() {
   const { sortTransactions, sortKey, sortOrder, toggleSortOrder } = useBudget();
@@ -35,49 +36,40 @@ export default function SortButtons() {
       </span>
 
       <div className="flex gap-2">
-        <button
+        <SortButton
+          sId="id"
+          sortKey={sortKey}
+          icon="mdi:recent"
           onClick={() => sortTransactions("id")}
-          className={`p-2 rounded-md flex gap-1 ${
-            sortKey === "id"
-              ? "text-primary bg-background"
-              : "text-muted-foreground/25"
-          }`}
-        >
-          <Icon icon="mdi:recent" width={20} />
-        </button>
-
-        <button
+          popTitle="Sort by Recent Transactions"
+        />
+        <SortButton
+          sId="amount"
+          sortKey={sortKey}
+          icon="mdi:cash-multiple"
           onClick={() => sortTransactions("amount")}
-          className={`p-2 rounded-md flex gap-1 ${
-            sortKey === "amount"
-              ? "text-primary bg-background"
-              : "text-muted-foreground/25"
-          }`}
-        >
-          <Icon icon="mdi:cash-multiple" width={20} />
-        </button>
-
-        <button
+          popTitle="Sort by Amount"
+        />
+        <SortButton
+          sId="date"
+          sortKey={sortKey}
+          icon="line-md:calendar"
           onClick={() => sortTransactions("date")}
-          className={`p-2 rounded-md flex gap-1 ${
-            sortKey === "date"
-              ? "text-primary bg-background"
-              : "text-muted-foreground/25"
-          }`}
-        >
-          <Icon icon="line-md:calendar" width={20} />
-        </button>
+          popTitle="Sort by Date"
+        />
       </div>
 
-      <Icon
-        onClick={() => toggleSortOrder()}
+      <SortButton
         icon={
           sortOrder === "asc"
             ? "tabler:sort-ascending"
             : "tabler:sort-descending"
         }
-        width={20}
         className=" text-green-500 transition-all"
+        onClick={() => toggleSortOrder()}
+        popTitle={
+          sortOrder === "asc" ? "Sort by Ascending" : "Sort by Descending"
+        }
       />
     </div>
   );

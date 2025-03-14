@@ -18,18 +18,18 @@
 
 import React from "react";
 import HoverEffect from "../effects/HoverEffect";
-import SingleTransaction from "./Transaction";
+import SingleTransaction from "./SingleTransaction";
 import { Icon } from "@iconify/react";
-import { printTransactions } from "@/lib/download";
+import { exportTransactions, printTransactions } from "@/lib/download";
 import { selectTransactionType } from "@/schema/transactionForm";
 import { useBudget } from "@/contexts/BudgetContext";
-import SortButtons from "./SortButtons";
+import SortButtons from "../sorting/SortButtons";
 
 export default function TransactionsList() {
   const { filteredTransactions } = useBudget();
 
   return (
-    <HoverEffect bgColor="#3D3D3D">
+    <HoverEffect bgColor="#3D3D3D" className="cursor-default">
       <div className="flex justify-between flex-col">
         <h2 className="font-semibold text-xl mb-4 border-b-2 border-primary/24">
           Transactions
@@ -46,16 +46,29 @@ export default function TransactionsList() {
         )}
       </div>
       <div className="border-t-2 mt-4" />
-      <div
-        className="mt-4 flex justify-center items-center gap-4 cursor-pointer"
-        onClick={() => printTransactions(filteredTransactions)}
-      >
-        Print all transactions
-        <Icon
-          icon="line-md:cloud-alt-print-twotone-loop"
-          width={28}
-          aria-valuetext="Print"
-        />
+      <div className="mt-4 flex justify-between items-center gap-4">
+        <div
+          className="flex w-full gap-2 items-center justify-center cursor-pointer bg-accent p-2 rounded-md"
+          onClick={() => printTransactions(filteredTransactions)}
+        >
+          Print PDF
+          <Icon
+            icon="flowbite:file-pdf-solid"
+            width={23}
+            aria-valuetext="Print"
+          />
+        </div>
+        <div
+          className="flex w-full gap-2 items-center justify-center cursor-pointer bg-accent p-2 rounded-md"
+          onClick={() => exportTransactions(filteredTransactions)}
+        >
+          Export CSV
+          <Icon
+            icon="flowbite:file-csv-solid"
+            width={23}
+            aria-valuetext="Print"
+          />
+        </div>
       </div>
     </HoverEffect>
   );

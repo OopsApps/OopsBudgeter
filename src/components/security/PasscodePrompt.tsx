@@ -24,7 +24,8 @@ import {
   InputOTPSlot,
 } from "../ui/input-otp";
 import HoverEffect from "../effects/HoverEffect";
-import { ThemeToggle } from "../extra/ThemeToggle";
+import { ThemeToggle } from "../common/ThemeToggle";
+import { useIsClient } from "@/hooks/useclient";
 
 export default function PasscodePrompt({
   onPasscodeValid,
@@ -33,6 +34,7 @@ export default function PasscodePrompt({
 }) {
   const [passcode, setPasscode] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const isClient = useIsClient();
 
   const handleSubmit = async () => {
     const response = await fetch("/api/auth/login", {
@@ -57,6 +59,7 @@ export default function PasscodePrompt({
   };
 
   useEffect(() => {
+    if (!isClient) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Enter") {
         handleSubmit();

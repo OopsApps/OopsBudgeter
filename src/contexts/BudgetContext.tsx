@@ -32,9 +32,10 @@ interface BudgetContextType {
   endDate: Date;
   sortKey: "amount" | "date" | "id";
   sortOrder: "asc" | "desc";
-  transactionTypeFilter: "all" | "income" | "expense",
+  transactionTypeFilter: "all" | "income" | "expense";
   setDateRange: (start: Date, end: Date) => void;
   addTransaction: (newTransaction: selectTransactionType) => void;
+  removeTransaction: (id: number) => void;
   sortTransactions: (key: "amount" | "date" | "id") => void;
   filterByType: (type: "all" | "income" | "expense") => void;
   toggleSortOrder: () => void;
@@ -140,6 +141,22 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
+  const removeTransaction = (id: number) => {
+    setTransactions((prev) => {
+      const updatedTransactions = prev.filter((trx) => trx.id !== id);
+      return sortKey === "id" && sortOrder === "desc"
+        ? updatedTransactions
+        : [...updatedTransactions].sort((a, b) => a.id - b.id);
+    });
+
+    setFilteredTransactions((prev) => {
+      const updatedFiltered = prev.filter((trx) => trx.id !== id);
+      return sortKey === "id" && sortOrder === "desc"
+        ? updatedFiltered
+        : [...updatedFiltered].sort((a, b) => a.id - b.id);
+    });
+  };
+
   const toggleSortOrder = () => {
     setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
     setFilteredTransactions([...filteredTransactions].reverse());
@@ -173,6 +190,7 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
         toggleSortOrder,
         filterByType,
         transactionTypeFilter,
+        removeTransaction,
       }}
     >
       {children}

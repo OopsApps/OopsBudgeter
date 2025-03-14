@@ -16,6 +16,7 @@
  */
 
 import { selectTransactionType } from "@/schema/transactionForm";
+import { saveAs } from "file-saver";
 
 export const printTransactions = (transactions: selectTransactionType[]) => {
   const printWindow = window.open("", "_blank");
@@ -48,7 +49,9 @@ export const printTransactions = (transactions: selectTransactionType[]) => {
                       <td class="border px-4 py-2">${trx.amount} ${
                     process.env.NEXT_PUBLIC_CURRENCY
                   }</td>
-                      <td class="border px-4 py-2 max-w-md truncate">${trx.description}</td>
+                      <td class="border px-4 py-2 max-w-md break-words">${
+                        trx.description
+                      }</td>
                       <td class="border px-4 py-2">${new Date(
                         trx.date
                       ).toLocaleString()}</td>
@@ -64,4 +67,21 @@ export const printTransactions = (transactions: selectTransactionType[]) => {
     printWindow.document.close();
     printWindow.print();
   }
+};
+
+export const exportTransactions = (transactions: selectTransactionType[]) => {
+  const csvContent =
+    "data:text/csv;charset=utf-8," +
+    ["Date,Category,Amount,Type,Description"]
+      .concat(
+        transactions.map((trx) =>
+          [trx.type, trx.amount, trx.date, trx.category, trx.description].join(
+            ","
+          )
+        )
+      )
+      .join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  saveAs(blob, "transactions.csv");
 };
