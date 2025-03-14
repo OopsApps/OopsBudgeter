@@ -21,7 +21,7 @@ import * as React from "react";
 import { useTheme } from "next-themes";
 
 import HoverEffect from "../effects/HoverEffect";
-import { Icon } from "@iconify/react/dist/iconify.js";
+import { Icon } from "@iconify/react";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();

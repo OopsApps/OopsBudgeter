@@ -23,6 +23,7 @@ export default function PasscodeWrapper({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const storedPasscode = localStorage.getItem("passcode");
@@ -38,19 +39,15 @@ export default function PasscodeWrapper({
     } else {
       setIsAuthenticated(true);
     }
-  }, []);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      document.title = "OopsBudgeter - Dashboard";
-    } else {
-      document.title = "OopsBudgeter - Enter Passcode";
-    }
-  }, [isAuthenticated]);
+    setIsLoading(false);
+  }, []);
 
   const handlePasscodeValid = () => {
     setIsAuthenticated(true);
   };
+
+  if (isLoading) return null;
 
   return (
     <div>

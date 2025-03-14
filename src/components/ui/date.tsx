@@ -167,7 +167,7 @@ export const DatetimePicker = forwardRef<HTMLDivElement, DateTimeInput>(
         if (onChange) {
           onChange(nextDate);
         } else {
-          console.log(nextDate);
+          console.error(nextDate);
         }
       },
       [onChange]

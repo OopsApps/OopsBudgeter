@@ -14,11 +14,14 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
+import React from "react";
+import AnalyticsWrapper from "@/components/common/Analytics";
+import { generateMetadata } from "@/lib/head";
 
-export interface Transaction {
-  tid: number;
-  type: "income" | "expense";
-  amount: number;
-  description: string;
-  date: string;
+export const metadata = generateMetadata({
+  title: "Analytics",
+});
+
+export default function Analytics() {
+  return <AnalyticsWrapper />;
 }

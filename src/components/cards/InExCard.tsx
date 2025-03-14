@@ -20,7 +20,7 @@ import HoverEffect from "../effects/HoverEffect";
 import PriceDisplay from "../common/Currency";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { Icon } from "@iconify/react/dist/iconify.js";
+import { Icon } from "@iconify/react";
 
 interface InExCardProps {
   title: "Expenses" | "Income";

@@ -83,7 +83,6 @@ export async function POST(req: NextRequest) {
 
   try {
     const { type, amount, description, date, category } = await req.json();
-    console.log(`🟢 Requested cat: ${category}`);
 
     const validCategories =
       type === "income" ? incomeCategories : expenseCategories;

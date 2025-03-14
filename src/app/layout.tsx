@@ -14,15 +14,17 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-import type { Metadata, Viewport } from "next";
+import type { Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import PasscodeWrapper from "@/components/security/PasscodeWrapper";
-import { og } from "@/lib/head";
 import GoToTop from "@/components/helpers/GoToTop";
 import { BudgetProvider } from "@/contexts/BudgetContext";
 import Toaster from "@/components/effects/Sonner";
+import { ThemeToggle } from "@/components/common/ThemeToggle";
+import Logo from "@/components/common/Logo";
+import { generateMetadata } from "@/lib/head";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,7 +36,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = og;
+export const metadata = generateMetadata;
 
 export const viewport: Viewport = {
   initialScale: 1,
@@ -56,7 +58,7 @@ export default function RootLayout({
       className="scroll-smooth scroll-p-4 overflow-hidden overflow-y-scroll"
     >
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-w-full`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-w-full flex justify-center items-center`}
         suppressHydrationWarning={true}
       >
         <ThemeProvider
@@ -67,8 +69,12 @@ export default function RootLayout({
         >
           <PasscodeWrapper>
             <BudgetProvider>
-              <main className="h-full w-full flex justify-center items-center p-4">
-                {children}
+              <main className="p-0 md:p-6">
+                <div className="relative flex flex-col justify-center items-center gap-4 bg-secondary p-6 max-w-2xl min-w-svw md:min-w-2xl md:rounded-lg">
+                  <Logo />
+                  <ThemeToggle />
+                  {children}
+                </div>
               </main>
               <GoToTop />
               <Toaster />

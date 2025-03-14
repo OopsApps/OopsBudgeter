@@ -1,102 +1,92 @@
-TODO: The app is complete yet I need to change some stuff in regards to the analytics tab
-
 # OopsBudgeter
 
-OopsBudgeter is a personal finance management app designed to help users track their income and expenses. Built with **Next.js**, **React**, and **Tailwind CSS**, the app is **PWA** (Progressive Web App)-enabled and can be easily self-hosted with Docker.
+OopsBudgeter is a personal finance management app designed to help users track their income and expenses. Built with **Next.js**, **React**, and **Tailwind CSS**, the app is **PWA** (Progressive Web App)-enabled and can be easily self-hosted with Docker. 
+
+*(**Why made it?** Because who doesn't want a budget app that makes them realize how broke they are? 💸😂)*
 
 ## Features
 
-- **Track income and expenses**: Easily manage your transactions with details like amount, description, and date.
-- **PWA Support**: Works offline, and you can install it as a native app.
-- **JWT-based authentication**: Secure your app with token-based authentication.
-- **Customizable Currency**: Supports over 20 currencies.
-- **Passcode Protection**: Add a passcode to protect access to the app and api.
-- **Responsive**: Built using Tailwind CSS for a clean and modern design.
+- **Track income and expenses**: Easily manage transactions with details like amount, description, category, and date.
+- **Advanced Analytics Dashboard**: Gain insights into your financial trends with detailed graphs and FakeAI-powered insights. *Yes, we graphically display your bad decisions!*
+- **FakeAI-Powered Insights 🤖📊**: Automated spending analysis and financial recommendations (like, "Stop buying useless stuff!").
+- **No-Spend Streaks**: Tracks how many consecutive days you've avoided spending. *Good luck breaking your record past a week!* 😂
+- **PWA Support**: Works offline, and you can install it as a native app. *Now you can check your tragic finances even without internet!*
+- **JWT-based authentication**: Secure your app with token-based authentication. *Hackers want your money? Joke’s on them, you don’t have any!*
+- **Customizable Currency**: Supports all ISO 4217 currencies. *Yes, even Monopoly money... but don’t ask why.*
+- **Passcode Protection**: Add a passcode to protect access to the app and API. *As if your bank account isn’t already protecting itself.*
+- **Responsive UI**: Built using Tailwind CSS for a clean and modern design.
 - **Docker support**: Easily deploy with Docker.
+- **Data Export**: Download transactions in **CSV** or **JSON** format or print them to a **PDF** format. *Because your financial misery should be well-documented!*
 
 ## Methods and Technologies Used
 
-- **Frontend**: 
-  - **Next.js** 15, **React** 19
-  - **Tailwind CSS** for styling
-  - **React Hook Form** for form handling
-  - **Zod** for form validation
-  - **JWT** for user authentication and security
-  - **Next-PWA** for Progressive Web App features
+### **Frontend:** 
+- **Next.js 15**, **React 19**
+- **Tailwind CSS** for styling
+- **React Hook Form** for form handling
+- **Zod** for form validation
+- **Recharts** for dynamic financial visualizations
+- **Next-PWA** for Progressive Web App features
 
-- **Backend**:
-  - **Quick.db** for local data storage
-  - **JWT-based authentication** for securing the application
+### **Backend:**
+- **PostgreSQL** for database storage
+- **JWT-based authentication** for securing the application
+- **Drizzle ORM** for database management
 
-- **Deployment**:
-  - **Docker** for containerization and easy deployment
-  - **GitHub Container Registry (GHCR)** for hosting Docker images
+### **Deployment:**
+- **Docker** for containerization and easy deployment
 
 ## Installation
 
-### Install and Run via Docker
+### **Install and Run via Docker**
 
 1. **Clone the repository**:
-
     ```bash
     git clone https://github.com/OopsApps/OopsBudgeter.git
-    cd budgeter
+    cd OopsBudgeter
     ```
-
 2. **Build the Docker image**:
-
     ```bash
-    docker build -t budgeter .
+    docker build -t OopsBudgeter .
     ```
-
 3. **Run the Docker container**:
-
     ```bash
-    docker run -p 3000:3000 budgeter
+    docker run -p 3000:3000 OopsBudgeter
     ```
-
     The app should now be accessible at `http://localhost:3000`.
 
-### Build from Source
+### **Build from Source**
 
 1. **Clone the repository**:
-
     ```bash
     git clone https://github.com/OopsApps/OopsBudgeter.git
-    cd budgeter
+    cd OopsBudgeter
     ```
-
 2. **Install dependencies**:
-
     ```bash
     bun install
     ```
-
-3. **Set environment variables** (details below) in a `.env.local` file.
-
+3. **Set environment variables** in a `.env.local` file (see below).
 4. **Build the app**:
-
     ```bash
     bun run build
     ```
-
 5. **Start the app**:
-
     ```bash
     bun start
     ```
-
     The app should now be accessible at `http://localhost:3000`.
 
 ## Environment Variables
 
-Make sure to create a `.env.local` file in the root directory and add the following environment variables:
+Create a `.env.local` file in the root directory and add the following:
 
-- **NEXT_PUBLIC_CURRENCY**: Set the default currency for the app (e.g., `USD`, `EUR`, `INR`, etc.)
-- **PASSCODE**: Set a custom passcode to protect access to the app, 6 digits.
-- **JWT_SECRET**: 32-token secret key used for signing JWT tokens.
-
-Example `.env.local` file:
+```ini
+NEXT_PUBLIC_CURRENCY=USD # Set your preferred currency
+PASSCODE=123456 # 6-digit passcode for app security
+JWT_SECRET=your-secure-jwt-secret # Secret key for JWT authentication
+DATABASE_URL=your-postgresql-url # PostgreSQL database connection URL
+```
 
 ## Contributing
 
@@ -123,9 +113,21 @@ This project is licensed under the **Apache License 2.0**. See the [LICENSE](LIC
 
 ---
 
-### A simple workflow of the WApp:
+## **How OopsBudgeter Works**
 
-1. **Track Income or Expenses**: You can add a transaction by choosing whether it's an income or an expense, entering the amount, description, and date.
-2. **View Balance**: The app will keep track of your balance, and you can see your current balance in the dashboard.
-3. **Sort Transactions**: Transactions can be sorted by **amount** or **date** (ascending or descending).
-4. **Print or Download Transactions**: You can print your transactions list for offline use with a nice and modern look.
+1. **Track Income or Expenses**: Add transactions by selecting type, amount, description, category, and date.
+2. **View Financial Analytics**: Get a breakdown of spending habits, trends, and AI-powered insights. *Aka: How much money you’ve wasted.*
+3. **Monitor Your No-Spend Streak**: See how long you've gone without unnecessary expenses. *Spoiler alert: It won’t be long.*
+4. **Print or Download Transactions**: Export transactions in **CSV** or **JSON** format. *So you can cry over them later.*
+5. **Plan Ahead with Predictions**: View projected spending based on trends. *Basically, a sneak peek into your future regrets.*
+
+OopsBudgeter is your all-in-one finance tracker, **making sure you face your financial mistakes head-on! 🚀😂**
+
+---
+### Disclaimer: About FakeAI Insights
+
+FakeAI is not a real artificial intelligence but rather a collection of predictive algorithms and calculations based on past data. It won’t pass the Turing test, but it will still judge your spending habits mercilessly 😉
+
+---
+
+Thanks for checking out OopsBudgeter! We appreciate your time and hope this app helps you (or at least makes you laugh while realizing where all your money went). – The OopsApps Team 💀

@@ -19,10 +19,16 @@
 import React from "react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 export default function Logo() {
   const { theme } = useTheme();
+  const router = useRouter();
+
   return (
-    <span className="flex items-center justify-center gap-4">
+    <span
+      className="flex items-center justify-center gap-4 cursor-pointer"
+      onClick={() => router.push("/")}
+    >
       <Image
         alt="OopsBudgeter Logo"
         src={theme === "light" ? "/logo.png" : "/logo_dark.png"}

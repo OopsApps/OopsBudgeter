@@ -5,10 +5,11 @@ services:
       - "3333:3000"
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_CURRENCY=USD
-      - PASSCODE=123123
-      - JWT_SECRET=Ithinkyouforgottouseyourown32tokencode
-      - DATABASE="postgresql://maybelikeauserhere?:andapasswordheretoo?@somerandomipiguess:aportlol/OopsBudgeterDBorsomerandomname?sslmode=require"
+      - NEXT_PUBLIC_CURRENCY=USD # Set your preferred currency
+      - PASSCODE=123456 # 6-digit passcode for app security
+      - JWT_SECRET=your-secure-jwt-secret # Secret key for JWT authentication
+      - DATABASE_URL=your-postgresql-url # PostgreSQL database connection URL
+
     networks:
       - oops-budgeter-network
 

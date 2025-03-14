@@ -16,7 +16,7 @@
  */
 const currencyCode = process.env.NEXT_PUBLIC_CURRENCY || "USD";
 
-const formatCurrency = (amount: number, currency: string) => {
+export const formatCurrency = (amount: number, currency: string) => {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: currency,

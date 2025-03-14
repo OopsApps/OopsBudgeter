@@ -19,7 +19,7 @@
 
 import React, { useEffect, useState } from "react";
 import HoverEffect from "../effects/HoverEffect";
-import { Icon } from "@iconify/react/dist/iconify.js";
+import { Icon } from "@iconify/react";
 import { useIsClient } from "@/hooks/useclient";
 
 export default function GoToTop() {

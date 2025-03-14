@@ -1,15 +1,29 @@
-FROM node:20-alpine
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
-
-RUN npm install
+COPY package.json bun.lockb ./
+RUN npm install -g bun && bun install --frozen-lockfile
 
 COPY . .
 
+RUN bun run build
+
+FROM node:20-slim AS runner
+
+WORKDIR /app
+
+COPY --from=builder /app/.next .next
+COPY --from=builder /app/public public
+COPY --from=builder /app/package.json .
+COPY --from=builder /app/bun.lockb .
+COPY --from=builder /app/src/schema src/schema
+COPY --from=builder /app/drizzle.config.ts drizzle.config.ts
+
+RUN npm install -g bun && bun install --frozen-lockfile --production
+
+RUN bun add -g drizzle-kit
+
 EXPOSE 3000
 
-RUN npm run build
-
-CMD ["npm", "start"]
+CMD ["sh", "-c", "bunx drizzle-kit migrate --config=drizzle.config.ts && bun start"]

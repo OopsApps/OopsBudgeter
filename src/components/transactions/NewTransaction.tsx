@@ -234,7 +234,12 @@ export default function NewTransaction() {
                                 new Date(field.value),
                                 "yyyy-MM-dd'T'HH:mm:ss"
                               )
-                            : ""
+                            : format(new Date(), "yyyy-MM-dd'T'HH:mm:ss")
+                        }
+                        onFocus={() =>
+                          field.onChange(
+                            format(new Date(), "yyyy-MM-dd'T'HH:mm:ss")
+                          )
                         }
                         onChange={(e) => field.onChange(e.target.value)}
                       />

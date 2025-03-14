@@ -16,7 +16,7 @@
  */
 
 import React, { useState } from "react";
-import { Icon } from "@iconify/react/dist/iconify.js";
+import { Icon } from "@iconify/react";
 import { formatDate } from "@/lib/formateDate";
 import { selectTransactionType } from "@/schema/transactionForm";
 import TxCard from "../cards/TxCard";
