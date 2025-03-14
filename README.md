@@ -38,6 +38,12 @@ OopsBudgeter is a personal finance management app designed to help users track t
 
 ## Installation
 
+### Deploy via Vercel (easiest)
+1. Afer deploying with the button, change the build command to `npx drizzle-kit push && next build`
+2. There, it will update the database with the correct schema.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FOopsApps%2FOopsBudgeter%2F&env=NEXT_PUBLIC_CURRENCY,PASSCODE,JWT_SECRET,DATABASE_URL&project-name=oopbudgeter&repository-name=OopsBudgeterFork&redirect-url=https%3A%2F%2Fgithub.com%2FOopsApps%2FOopsBudgeter&production-deploy-hook=Github)
+
 ### **Install and Run via Docker**
 
 1. **Clone the repository**:
