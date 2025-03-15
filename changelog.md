@@ -1,5 +1,21 @@
 # OopsBudgeter Changelog
 
+## v2.1.0 - Balance Toggle ⚖️
+**Released: March 15, 2025**
+
+**Your Balance, Your Rules!**
+This update brings a brand-new Balance Mode Toggle, giving you full control over how you view your finances. Whether you want a total balance across all time or a filtered balance within a specific timeframe, you can now switch seamlessly with just a click!
+
+## ✨ New & Improved
+### 💡 Balance Mode Toggle
+- 🌍 Total Balance Mode – See your all-time financial overview, tracking every income and expense ever recorded.
+- 📆 Timeframe Balance Mode – Focus on just the selected period (e.g., this month, this week).
+- 💾 Saves your preference automatically, so you don’t have to toggle it every session!
+
+### 🛠️ Fixes & Adjustments
+- Improved UI transitions when switching balance views.
+- Fixed a state reset issue when rapidly switching modes.
+
 ## v2.0.5 - Docker Optimization 🐋
 **Released: March 15, 2025**
 

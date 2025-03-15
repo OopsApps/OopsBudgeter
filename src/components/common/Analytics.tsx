@@ -30,7 +30,7 @@ import {
 } from "@/lib/my1DollarAI";
 
 export default function AnalyticsWrapper() {
-  const { transactions } = useBudget();
+  const { transactions, filteredTransactions } = useBudget();
   const monthlyTrend = getMonthlyTrends(transactions);
 
   const COLORS = [
@@ -169,7 +169,7 @@ export default function AnalyticsWrapper() {
             💸 Biggest Spending Category
           </h2>
           <p className="text-2xl font-bold text-red-500">
-            {getSpendingInsights(transactions)}
+            {getSpendingInsights(filteredTransactions)}
           </p>
         </div>
 
@@ -178,7 +178,7 @@ export default function AnalyticsWrapper() {
             📊 Next Months Predicted Spending
           </h2>
           <p className="text-2xl font-bold text-orange-500">
-            {predictNextMonthSpending(transactions)}
+            {predictNextMonthSpending(filteredTransactions)}
           </p>
         </div>
       </div>

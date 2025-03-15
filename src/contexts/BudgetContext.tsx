@@ -28,17 +28,20 @@ interface BudgetContextType {
   totalIncome: number;
   totalExpense: number;
   balance: number;
+  totalBalance: number;
   startDate: Date;
   endDate: Date;
   sortKey: "amount" | "date" | "id";
   sortOrder: "asc" | "desc";
   transactionTypeFilter: "all" | "income" | "expense";
+  balanceMode: "total" | "timeframe";
   setDateRange: (start: Date, end: Date) => void;
   addTransaction: (newTransaction: selectTransactionType) => void;
   removeTransaction: (id: number) => void;
   sortTransactions: (key: "amount" | "date" | "id") => void;
   filterByType: (type: "all" | "income" | "expense") => void;
   toggleSortOrder: () => void;
+  toggleBalanceMode: () => void;
 }
 
 const BudgetContext = createContext<BudgetContextType | undefined>(undefined);
@@ -55,6 +58,16 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
   const [transactionTypeFilter, setTransactionTypeFilter] = useState<
     "all" | "income" | "expense"
   >("all");
+  const [balanceMode, setBalanceMode] = useState<"total" | "timeframe">(
+    "total"
+  );
+
+  useEffect(() => {
+    const savedMode = localStorage.getItem("balanceMode");
+    if (savedMode === "total" || savedMode === "timeframe") {
+      setBalanceMode(savedMode);
+    }
+  }, []);
 
   useEffect(() => {
     const getTransactions = async () => {
@@ -125,6 +138,14 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
     setFilteredTransactions(sorted);
   };
 
+  const toggleBalanceMode = () => {
+    setBalanceMode((prev) => {
+      const newMode = prev === "total" ? "timeframe" : "total";
+      localStorage.setItem("balanceMode", newMode);
+      return newMode;
+    });
+  };
+
   const addTransaction = (newTransaction: selectTransactionType) => {
     setTransactions((prev) => {
       const updatedTransactions = [newTransaction, ...prev];
@@ -134,10 +155,16 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     setFilteredTransactions((prev) => {
-      const updatedFiltered = [newTransaction, ...prev];
-      return sortKey === "id" && sortOrder === "desc"
-        ? updatedFiltered
-        : [...updatedFiltered].sort((a, b) => a.id - b.id);
+      const transactionDate = parseISO(newTransaction.date);
+      const isWithinTimeframe =
+        transactionDate >= startDate && transactionDate <= endDate;
+      if (balanceMode === "total" || isWithinTimeframe) {
+        const updatedFiltered = [newTransaction, ...prev];
+        return sortKey === "id" && sortOrder === "desc"
+          ? updatedFiltered
+          : [...updatedFiltered].sort((a, b) => a.id - b.id);
+      }
+      return prev;
     });
   };
 
@@ -170,7 +197,17 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
     .filter((trx) => trx.type === "expense")
     .reduce((sum, trx) => sum + trx.amount, 0);
 
+  const totalPersistentIncome = transactions
+    .filter((trx) => trx.type === "income")
+    .reduce((sum, trx) => sum + trx.amount, 0);
+
+  const totalPersistentExpense = transactions
+    .filter((trx) => trx.type === "expense")
+    .reduce((sum, trx) => sum + trx.amount, 0);
+
   const balance = totalIncome - totalExpense;
+
+  const totalBalance = totalPersistentIncome - totalPersistentExpense;
 
   return (
     <BudgetContext.Provider
@@ -180,6 +217,7 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
         totalIncome,
         totalExpense,
         balance,
+        totalBalance,
         startDate,
         endDate,
         setDateRange,
@@ -191,6 +229,8 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
         filterByType,
         transactionTypeFilter,
         removeTransaction,
+        balanceMode,
+        toggleBalanceMode,
       }}
     >
       {children}
