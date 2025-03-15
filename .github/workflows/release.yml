@@ -33,3 +33,4 @@ jobs:
           body_path: release_notes.md
           draft: false
           prerelease: false
+          token: ${{ secrets.ORG_GITHUB_TOKEN }}
