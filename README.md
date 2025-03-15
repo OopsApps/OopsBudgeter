@@ -8,6 +8,8 @@ OopsBudgeter is a personal finance management app designed to help users track t
 ###### Please use it for test purposes **only**, check the UI, features and abilities given to the web app or pwa. The PIN code is 696969
 [budget.oopsapps.tech](https://budget.oopsapps.tech/)
 
+##### A Simple Roadmap for this Project: https://trello.com/b/rprhjhY9
+
 ## Features
 
 - **💰 Track income and expenses**: Easily manage transactions with details like amount, description, category, and date.
