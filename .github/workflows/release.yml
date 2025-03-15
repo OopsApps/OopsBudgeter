@@ -19,17 +19,17 @@ jobs:
       - name: Generate Changelog
         id: changelog
         run: |
-          echo "# 🚀 ${{ steps.get_version.outputs.VERSION }} - New Release 🔥" > release_notes.md
+          echo "# 🚀 ${{ env.VERSION }} - New Release 🔥" > release_notes.md
           echo "" >> release_notes.md
           echo "### **What's New?**" >> release_notes.md
           echo "" >> release_notes.md
-          echo "$(cat CHANGELOG.md | sed -n '/^## \[${{ steps.get_version.outputs.VERSION }}/,/^## /p' | sed '$d')" >> release_notes.md
+          echo "$(cat CHANGELOG.md | sed -n '/^## \[${{ env.VERSION }}/,/^## /p' | sed '$d')" >> release_notes.md
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.get_version.outputs.VERSION }}
-          name: "Release ${{ steps.get_version.outputs.VERSION }}"
+          tag_name: ${{ env.VERSION }}
+          name: "Release ${{ env.VERSION }}"
           body_path: release_notes.md
           draft: false
           prerelease: false

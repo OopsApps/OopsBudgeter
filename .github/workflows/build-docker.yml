@@ -34,4 +34,4 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: iconical/oopsbudgeter:${{ steps.version.outputs.VERSION }},iconical/oopsbudgeter:latest
+          tags: iconical/oopsbudgeter:${{ env.VERSION }},iconical/oopsbudgeter:latest
