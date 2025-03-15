@@ -1,0 +1,35 @@
+name: Create GitHub Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Generate Changelog
+        id: changelog
+        run: |
+          echo "# 🚀 ${{ steps.get_version.outputs.VERSION }} - New Release 🔥" > release_notes.md
+          echo "" >> release_notes.md
+          echo "### **What's New?**" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "$(cat CHANGELOG.md | sed -n '/^## \[${{ steps.get_version.outputs.VERSION }}/,/^## /p' | sed '$d')" >> release_notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          name: "Release ${{ steps.get_version.outputs.VERSION }}"
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
