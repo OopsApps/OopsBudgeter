@@ -4,19 +4,23 @@ OopsBudgeter is a personal finance management app designed to help users track t
 
 *(**Why made it?** Because who doesn't want a budget app that makes them realize how broke they are? 💸😂)*
 
+### Demo version
+###### Please use it for test purposes **only**, check the UI, features and abilities given to the web app or pwa. The PIN code is 696969
+[budget.oopsapps.tech](https://budget.oopsapps.tech/)
+
 ## Features
 
-- **Track income and expenses**: Easily manage transactions with details like amount, description, category, and date.
-- **Advanced Analytics Dashboard**: Gain insights into your financial trends with detailed graphs and FakeAI-powered insights. *Yes, we graphically display your bad decisions!*
-- **FakeAI-Powered Insights 🤖📊**: Automated spending analysis and financial recommendations (like, "Stop buying useless stuff!").
-- **No-Spend Streaks**: Tracks how many consecutive days you've avoided spending. *Good luck breaking your record past a week!* 😂
-- **PWA Support**: Works offline, and you can install it as a native app. *Now you can check your tragic finances even without internet!*
-- **JWT-based authentication**: Secure your app with token-based authentication. *Hackers want your money? Joke’s on them, you don’t have any!*
-- **Customizable Currency**: Supports all ISO 4217 currencies. *Yes, even Monopoly money... but don’t ask why.*
-- **Passcode Protection**: Add a passcode to protect access to the app and API. *As if your bank account isn’t already protecting itself.*
-- **Responsive UI**: Built using Tailwind CSS for a clean and modern design.
-- **Docker support**: Easily deploy with Docker.
-- **Data Export**: Download transactions in **CSV** or **JSON** format or print them to a **PDF** format. *Because your financial misery should be well-documented!*
+- **💰 Track income and expenses**: Easily manage transactions with details like amount, description, category, and date.
+- **📊 Advanced Analytics Dashboard**: Gain insights into your financial trends with detailed graphs and FakeAI-powered insights. *Yes, we graphically display your bad decisions!*
+- **🤖 FakeAI-Powered Insights**: Automated spending analysis and financial recommendations (like, "Stop buying useless stuff!").
+- **🔥 No-Spend Streaks**: Tracks how many consecutive days you've avoided spending. *Good luck breaking your record past a week!* 😂
+- **📱 PWA Support**: Works offline, and you can install it as a native app. *Now you can check your tragic finances even without internet!*
+- **🔐 JWT-based authentication**: Secure your app with token-based authentication. *Hackers want your money? Joke’s on them, you don’t have any!*
+- **💱 Customizable Currency**: Supports all ISO 4217 currencies. *Yes, even Monopoly money... but don’t ask why.*
+- **🔢 Passcode Protection**: Add a passcode to protect access to the app and API. *As if your bank account isn’t already protecting itself.*
+- **🎨 Responsive UI**: Built using Tailwind CSS for a clean and modern design.
+- **🐋 Docker support**: Easily deploy with Docker.
+- **⬇️ Data Export**: Download transactions in **CSV** or **JSON** format or print them to a **PDF** format. *Because your financial misery should be well-documented!*
 
 ## Methods and Technologies Used
 
@@ -46,6 +50,18 @@ OopsBudgeter is a personal finance management app designed to help users track t
 
 ### **Install and Run via Docker**
 
+#### via Docker hub image
+```bash
+docker run -d \
+  -p 3030:3000 \
+  -e PASSCODE=12345 \
+  -e NEXT_PUBLIC_CURRENCY=USD \
+  -e JWT_SECRET=your-secure-jwt-secret \
+  -e DATABASE_URL=your-postgresql-url \
+  iconical/oopsbudgeter:latest
+```
+
+#### via Building Docker Image
 1. **Clone the repository**:
     ```bash
     git clone https://github.com/OopsApps/OopsBudgeter.git
@@ -87,12 +103,12 @@ OopsBudgeter is a personal finance management app designed to help users track t
 
 Create a `.env.local` file in the root directory and add the following:
 
-```ini
-NEXT_PUBLIC_CURRENCY=USD # Set your preferred currency
-PASSCODE=123456 # 6-digit passcode for app security
-JWT_SECRET=your-secure-jwt-secret # Secret key for JWT authentication
-DATABASE_URL=your-postgresql-url # PostgreSQL database connection URL
-```
+| Variable | Description | Required | Default | Example |
+|----------|-------------|----------|---------|---------|
+| `NEXT_PUBLIC_CURRENCY` | Currency code for transactions | No | `USD` | `EUR` |
+| `PASSCODE` | 6-digit PIN code for accessing the application | Yes | - | `123456` |
+| `JWT_SECRET` | Secret key for JWT authentication | Yes | - | `your-secure-jwt-secret - you can generate a 32-digit token here https://tools.iconical.dev/token-generator?length=32` |
+| `DATABASE_URL` | PostgreSQL database connection URL. | Yes | - | `your-postgresql-url - you can create a free database on neon.tech or sth idk *shrug*` |
 
 ## Contributing
 
@@ -111,7 +127,11 @@ If you encounter any issues with the app, please open an issue on the [GitHub Is
 
 ## Support
 
-If you need support or have any questions about using the app, feel free to contact me at [help@oopsapps.tech](mailto:help@oopsapps.tech) or open an issue in the [GitHub Issues page](https://github.com/OopsApps/OopsBudgeter/issues).
+If you need support or have any questions about using the app, feel free to contact us at [help@oopsapps.tech](mailto:help@oopsapps.tech) or open an issue in the [GitHub Issues page](https://github.com/OopsApps/OopsBudgeter/issues).
+
+## Support our Project
+
+<a href="https://www.buymeacoffee.com/iconical"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a strawberry&emoji=🍓&slug=iconical&button_colour=BD5FFF&font_colour=ffffff&font_family=Poppins&outline_colour=000000&coffee_colour=FFDD00" /></a>
 
 ## License
 
