@@ -1,5 +1,23 @@
 # OopsBudgeter Changelog
 
+## v2.0.5 - Docker Optimization 🐋
+**Released: March 15, 2025**
+
+**More Automation, More Control!**
+This update brings seamless Docker versioning, ensuring self-hosters and deployments stay in sync without the hassle. No more mismatched builds—just smooth, tagged releases every time 😏
+
+## ✨ **New & Improved**  
+### 💡 **Automatic Docker Versioning**  
+- Every image is now **tagged with both `latest` and the actual app version** from `package.json` (e.g., `1.2.3`).  
+- **No more overwriting old versions**—rollback anytime!  
+
+### 🔄 **Smoother Self-Hosting Experience**  
+- Forks & self-hosted deployments now work **out of the box**.  
+- No more manual fixes—just deploy and enjoy!  
+
+
+---
+
 ## v2.0.0 - The Ultimate Overhaul 🚀🔥
 **Released: March 15, 2025**
 

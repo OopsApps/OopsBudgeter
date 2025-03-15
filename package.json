@@ -1,6 +1,6 @@
 {
   "name": "oops-budgeter",
-  "version": "2.0.2",
+  "version": "2.0.5",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack -p 3031",

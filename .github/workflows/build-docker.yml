@@ -13,7 +13,11 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v4
 
-      - name: Login to dockerhub
+      - name: Extract version from package.json
+        id: version
+        run: echo "VERSION=$(jq -r '.version' package.json)" >> $GITHUB_ENV
+
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
@@ -25,9 +29,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push
+      - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: iconical/oopsbudgeter:latest
+          tags: |
+            iconical/oopsbudgeter:latest
+            iconical/oopsbudgeter:${{ env.VERSION }}

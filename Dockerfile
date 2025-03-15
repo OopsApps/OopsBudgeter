@@ -7,7 +7,7 @@ RUN npm install -g bun && bun install --frozen-lockfile
 
 COPY . .
 
-RUN bun run build
+RUN bun next build
 
 FROM node:20-slim AS runner
 
