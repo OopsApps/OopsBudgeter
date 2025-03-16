@@ -29,20 +29,20 @@ import {
   predictNextMonthSpending,
 } from "@/lib/my1DollarAI";
 
+export const chartColors = [
+  "#2DAC64",
+  "#E24444",
+  "#FFB02E",
+  "#0088FE",
+  "#FF6347",
+  "#A155B9",
+  "#45C4B0",
+  "#E4D374",
+];
+
 export default function AnalyticsWrapper() {
   const { transactions, filteredTransactions } = useBudget();
   const monthlyTrend = getMonthlyTrends(transactions);
-
-  const COLORS = [
-    "#2DAC64",
-    "#E24444",
-    "#FFB02E",
-    "#0088FE",
-    "#FF6347",
-    "#A155B9",
-    "#45C4B0",
-    "#E4D374",
-  ];
 
   const incomeData = transactions.filter((trx) => trx.type === "income");
   const expenseData = transactions.filter((trx) => trx.type === "expense");
@@ -65,7 +65,7 @@ export default function AnalyticsWrapper() {
     ([category, amount], index) => ({
       name: category,
       value: amount,
-      color: COLORS[index % COLORS.length],
+      color: chartColors[index % chartColors.length],
     })
   );
 
@@ -400,8 +400,8 @@ export default function AnalyticsWrapper() {
                 key={cat}
                 dataKey={cat}
                 stackId="1"
-                stroke={COLORS[idx]}
-                fill={COLORS[idx]}
+                stroke={chartColors[idx]}
+                fill={chartColors[idx]}
               />
             ))}
           </Recharts.AreaChart>

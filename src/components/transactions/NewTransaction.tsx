@@ -16,7 +16,7 @@
  */
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Drawer, DrawerContent, DrawerTrigger } from "../ui/drawer";
 import HoverEffect from "../effects/HoverEffect";
 import { Icon } from "@iconify/react";
@@ -41,9 +41,24 @@ import {
 } from "../ui/select";
 import { expenseCategories, incomeCategories } from "@/lib/categories";
 import { DialogTitle } from "@radix-ui/react-dialog";
+import { fetchExchangeRates } from "../common/Currency";
 
 export default function NewTransaction() {
+  const { currency } = useBudget();
   const [type, setType] = useState<"income" | "expense">("income");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [exchangeRates, setExchangeRates] = useState<{ [key: string]: number }>(
+    {}
+  );
+
+  useEffect(() => {
+    const fetchRates = async () => {
+      const rates = await fetchExchangeRates("USD");
+      setExchangeRates(rates);
+    };
+
+    fetchRates();
+  }, []);
 
   const { addTransaction } = useBudget();
 
@@ -61,13 +76,22 @@ export default function NewTransaction() {
   });
 
   const onSubmit = async (data: insertTransactionType) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
     const localDate = new Date(data.date);
     const utcDate = new Date(
       localDate.getTime() - localDate.getTimezoneOffset() * 60000
     );
 
+    const correctCurrency =
+      currency.length !== 3 ? "USD" : currency.toUpperCase();
+    const exchangeRate = exchangeRates[correctCurrency] || 1;
+    const amountInUSD = data.amount / exchangeRate;
+
     const formData = {
       ...data,
+      amount: amountInUSD,
       date: utcDate.toISOString(),
     };
 
@@ -100,6 +124,8 @@ export default function NewTransaction() {
       }
     } catch (err) {
       toast.error(`Something went wrong: ${err}`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -228,14 +254,7 @@ export default function NewTransaction() {
                         {...field}
                         type="datetime-local"
                         className="border p-2 rounded-md text-base max-w-3xs md:max-w-sm w-full"
-                        value={
-                          field.value
-                            ? format(
-                                new Date(field.value),
-                                "yyyy-MM-dd'T'HH:mm:ss"
-                              )
-                            : format(new Date(), "yyyy-MM-dd'T'HH:mm:ss")
-                        }
+                        value={format(new Date(), "yyyy-MM-dd'T'HH:mm:ss")}
                         onFocus={() =>
                           field.onChange(
                             format(new Date(), "yyyy-MM-dd'T'HH:mm:ss")
@@ -248,16 +267,18 @@ export default function NewTransaction() {
                 />
               </div>
 
-              <HoverEffect
-                onClick={form.handleSubmit(onSubmit)}
-                role="button"
-                className="cursor-pointer rounded-lg text-center font-semibold flex justify-center items-center bg-blue-600 text-black dark:text-white max-h-10"
-              >
-                Add Transaction
+              <HoverEffect className="flex justify-center items-center bg-blue-600 max-h-10 p-0">
+                <button
+                  className="w-full h-full cursor-pointer p-2 rounded-lg text-center font-semibold text-black dark:text-white"
+                  onClick={form.handleSubmit(onSubmit)}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Adding..." : "Add Transaction"}
+                </button>
               </HoverEffect>
 
               <div
-                className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 w-80 text-red-500 rounded-lg bg-red-950 p-2 px-4 transition-all text-base duration-300 ${
+                className={`fixed bottom-2.5 left-1/2 transform -translate-x-1/2 w-80 text-red-500 rounded-lg bg-red-950 p-2 px-4 transition-all text-base duration-300 ${
                   form.formState.errors.amount ||
                   form.formState.errors.description
                     ? "opacity-100 translate-y-0"

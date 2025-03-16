@@ -25,6 +25,8 @@ import Toaster from "@/components/effects/Sonner";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 import Logo from "@/components/common/Logo";
 import { generateMetadata } from "@/lib/head";
+import { Settings } from "@/components/common/Settings";
+import PageLayout from "@/components/helpers/PageLayout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -70,11 +72,12 @@ export default function RootLayout({
           <PasscodeWrapper>
             <BudgetProvider>
               <main className="p-0 md:p-6">
-                <div className="relative flex flex-col justify-center items-center gap-4 bg-secondary p-6 max-w-2xl min-w-svw md:min-w-2xl md:rounded-lg">
+                <PageLayout>
                   <Logo />
+                  <Settings />
                   <ThemeToggle />
                   {children}
-                </div>
+                </PageLayout>
               </main>
               <GoToTop />
               <Toaster />

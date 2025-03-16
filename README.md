@@ -8,7 +8,7 @@ OopsBudgeter is a personal finance management app designed to help users track t
 ###### Please use it for test purposes **only**, check the UI, features and abilities given to the web app or pwa. The PIN code is 696969
 [budget.oopsapps.tech](https://budget.oopsapps.tech/)
 
-##### A Simple Roadmap for this Project: https://trello.com/b/rprhjhY9
+##### A Simple Roadmap for this Project: [Roadmap via Github](https://github.com/orgs/OopsApps/projects/3)
 
 ## Features
 
@@ -45,8 +45,6 @@ OopsBudgeter is a personal finance management app designed to help users track t
 ## Installation
 
 ### Deploy via Vercel (easiest)
-1. Afer deploying with the button, change the build command to `npx drizzle-kit push && next build`
-2. There, it will update the database with the correct schema.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FOopsApps%2FOopsBudgeter%2F&env=NEXT_PUBLIC_CURRENCY,PASSCODE,JWT_SECRET,DATABASE_URL&project-name=oopsbudgeter&repository-name=oopsbudgeter&redirect-url=https%3A%2F%2Fgithub.com%2FOopsApps%2FOopsBudgeter&production-deploy-hook=Github)
 

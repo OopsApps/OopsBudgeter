@@ -35,11 +35,14 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { cn } from "@/lib/utils";
+import { categoryColors } from "@/constants/catColor";
+import { useApp } from "@/contexts/AppContext";
 
 export default function SingleTransaction({
   trx,
 }: Readonly<{ trx: selectTransactionType }>) {
   const { removeTransaction } = useBudget();
+  const { colorfulCategories, colorfulTransactions } = useApp();
 
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -66,19 +69,43 @@ export default function SingleTransaction({
       console.error(`Error: ${data.message}`);
     }
   };
+
+  const getCategoryColor = (category: string) => {
+    const match = categoryColors.find((c) => c.category === category);
+    return match ? match.color : "#CCCCCC";
+  };
+
   return (
     <TxCard
-      bgColor={trx.type === "income" ? "#2DAC6420" : "#e2444420"}
-      className="p-3 "
+      bgColor={
+        colorfulTransactions === "On"
+          ? trx.type === "income"
+            ? "#2DAC6420"
+            : "#e2444420"
+          : ""
+      }
+      className="p-3 bg-accent/40"
     >
       <div className="flex flex-col md:flex-row justify-between items-center">
         <div className="flex flex-col">
-          <span className="max-w-56 sm:max-w-md break-words">
-            {trx.category && trx.category !== "None" && trx.category}
+          <span className="max-w-md break-words">
+            {trx.category && trx.category !== "None" && (
+              <span
+                className="font-semibold"
+                style={{
+                  color:
+                    colorfulCategories === "On"
+                      ? getCategoryColor(trx.category)
+                      : "",
+                }}
+              >
+                {trx.category}
+              </span>
+            )}
             {trx.category &&
               trx.category !== "None" &&
               trx.description &&
-              " ‣ "}
+              " • "}
             {trx.description && trx.description}
           </span>
           <span className="text-muted-foreground">{formatDate(trx.date)}</span>

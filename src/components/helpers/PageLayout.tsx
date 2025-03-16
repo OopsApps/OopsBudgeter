@@ -14,12 +14,29 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
+"use client";
 
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { useApp } from "@/contexts/AppContext";
+import { cn } from "@/lib/utils";
+import React from "react";
 
-export async function GET() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("authToken")?.value || null;
-  return NextResponse.json({ token });
+export default function PageLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { appWidth } = useApp();
+
+  return (
+    <div
+      className={cn(
+        "relative flex flex-col justify-center items-center gap-4 bg-secondary p-6  min-w-svw md:min-w-3xl md:rounded-lg transition-all duration-500",
+        appWidth === "Compact"
+          ? "max-w-[600px] md:min-w-[600px]"
+          : "max-w-3xl md:min-w-3xl"
+      )}
+    >
+      {children}
+    </div>
+  );
 }

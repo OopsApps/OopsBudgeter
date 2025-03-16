@@ -18,37 +18,9 @@
 import { db } from "@/lib/db";
 import { transactions } from "@/schema/dbSchema";
 import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import { expenseCategories, incomeCategories } from "@/lib/categories";
-
-const SECRET = process.env.JWT_SECRET as string;
-
-async function verifyToken(req: NextRequest) {
-  const cookieStore = await cookies();
-  const tokenFromCookie = cookieStore.get("authToken")?.value;
-
-  const authHeader = req.headers.get("Authorization");
-  const tokenFromHeader =
-    authHeader && authHeader.startsWith("Bearer ")
-      ? authHeader.split(" ")[1]
-      : null;
-
-  const token = tokenFromHeader || tokenFromCookie;
-
-  if (!token) return { authorized: false, error: "Unauthorized" };
-
-  try {
-    const decoded = jwt.verify(token, SECRET);
-    return { authorized: true, user: decoded };
-  } catch (err) {
-    return {
-      authorized: false,
-      error: `Invalid or expired token, ${(err as Error).message}`,
-    };
-  }
-}
+import { verifyToken } from "../auth/login/route";
 
 export async function GET(req: NextRequest) {
   const { authorized, user, error } = await verifyToken(req);

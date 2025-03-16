@@ -30,8 +30,13 @@ export default function DateRangePicker() {
     >
       <input
         type="date"
-        value={format(startDate, "yyyy-MM-dd")}
-        onChange={(e) => setDateRange(new Date(e.target.value), endDate)}
+        value={startDate ? format(startDate, "yyyy-MM-dd") : ""}
+        onChange={(e) => {
+          const newDate = e.target.value
+            ? new Date(e.target.value)
+            : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+          setDateRange(newDate, endDate);
+        }}
         className="border p-2 rounded-md text-base"
       />
       <span className="text-base font-semibold items-center gap-2 hidden md:flex">
@@ -42,8 +47,13 @@ export default function DateRangePicker() {
       <p className="flex md:hidden">-</p>
       <input
         type="date"
-        value={format(endDate, "yyyy-MM-dd")}
-        onChange={(e) => setDateRange(startDate, new Date(e.target.value))}
+        value={endDate ? format(endDate, "yyyy-MM-dd") : ""}
+        onChange={(e) => {
+          const newDate = e.target.value
+            ? new Date(e.target.value)
+            : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+          setDateRange(startDate, newDate);
+        }}
         className="border p-2 rounded-md text-base"
       />
     </HoverEffect>

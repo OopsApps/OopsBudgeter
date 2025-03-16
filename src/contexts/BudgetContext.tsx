@@ -21,6 +21,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { fetchTransactions } from "@/lib/api";
 import { startOfMonth, endOfMonth, isWithinInterval, parseISO } from "date-fns";
 import { selectTransactionType } from "@/schema/transactionForm";
+import { AppProvider } from "./AppContext";
 
 interface BudgetContextType {
   transactions: selectTransactionType[];
@@ -35,6 +36,8 @@ interface BudgetContextType {
   sortOrder: "asc" | "desc";
   transactionTypeFilter: "all" | "income" | "expense";
   balanceMode: "total" | "timeframe";
+  currency: string;
+  updateCurrency: (newCurrency: string) => void;
   setDateRange: (start: Date, end: Date) => void;
   addTransaction: (newTransaction: selectTransactionType) => void;
   removeTransaction: (id: number) => void;
@@ -61,6 +64,7 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
   const [balanceMode, setBalanceMode] = useState<"total" | "timeframe">(
     "total"
   );
+  const [currency, setCurrency] = useState("USD");
 
   useEffect(() => {
     const savedMode = localStorage.getItem("balanceMode");
@@ -81,6 +85,24 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const savedCurrency = localStorage.getItem("currency");
+
+    if (savedCurrency) {
+      setCurrency(savedCurrency);
+    } else {
+      const envCurrency = process.env.NEXT_PUBLIC_CURRENCY;
+      if (envCurrency) {
+        setCurrency(envCurrency);
+      }
+    }
+  }, []);
+
+  const updateCurrency = (newCurrency: string) => {
+    setCurrency(newCurrency);
+    localStorage.setItem("currency", newCurrency);
+  };
 
   const filterTransactions = (
     data: selectTransactionType[],
@@ -231,9 +253,11 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
         removeTransaction,
         balanceMode,
         toggleBalanceMode,
+        currency,
+        updateCurrency,
       }}
     >
-      {children}
+      <AppProvider>{children}</AppProvider>
     </BudgetContext.Provider>
   );
 };

@@ -1,5 +1,33 @@
 # OopsBudgeter Changelog
 
+## v2.2.0 - Smart Settings & Dynamic Currency 💰🌍
+**Released: March 17, 2025**
+
+**Take Control of Your Budget, Your Way!**
+This update introduces powerful new settings, including custom currency selection with live conversion, dynamic app width customization, and vibrant transaction visuals—making your budget smarter and more intuitive than ever before!
+
+## ✨ New & Improved
+### 💰 Dynamic Currency Selection & Live Conversion
+- Set your preferred currency in the new Settings Menu, and it will persist per device.
+- If a default currency is needed, ENV configuration allows for a global default.
+- Live currency conversion ensures that your amounts stay accurate across different currencies!
+  - Example: If you add 10 USD on USD currency option and switch to EUR, it correctly converts and shows 9.20 EUR.
+  - And, when adding 10 EUR on EUR currency option and switched back to USD, it shows $10.87 USD. Aka, live conversion with the help of something API I forgot T-T
+
+### ⚙️ Fully Customizable App Width
+- Compact or Normal mode—choose the best fit for your screen from Settings.
+- Your preference persists per device, ensuring a seamless experience.
+
+### 🎨 Colorful Categories & Transaction Backgrounds
+- Categories of each type now has a predefined, unique color, making them instantly recognizable (Red for expense and Green of income).
+- Transactions' colored backgrounds are now optional in the settings menu, but for now giving your financial history a vibrant, clean look with dark and minimal color.
+
+### 🛠️ Bug Fixes & Improvements
+- Fixed Date Picker Crash: Clearing the date no longer results in an "Invalid Date" error or a full page crash. Now, it properly resets to the first day of the current month.
+- Optimized Color & Data Handling: Transactions load faster and smoother without flickering or mismatched colors... I guess, joking of course!!!!!!!!!!!
+
+---
+
 ## v2.1.0 - Balance Toggle ⚖️
 **Released: March 15, 2025**
 
@@ -16,6 +44,18 @@ This update brings a brand-new Balance Mode Toggle, giving you full control over
 - Improved UI transitions when switching balance views.
 - Fixed a state reset issue when rapidly switching modes.
 
+## v2.0.7 - More Automated 🚀
+**Released: March 15, 2025**  
+
+This update fine-tunes Docker handling and an even smoother self-hosting process. Now, deploying is **effortless**, and keeping your app up-to-date is a breeze 😏  
+
+### ✨ **New Features**  
+- **💡 Automatic Docker Versioning**  
+  - Docker images now use the **version from `package.json`** for better tracking.  
+  - Every release is now **tagged properly**, no more overwriting images!  
+
+---
+
 ## v2.0.5 - Docker Optimization 🐋
 **Released: March 15, 2025**
 
@@ -30,7 +70,6 @@ This update brings seamless Docker versioning, ensuring self-hosters and deploym
 ### 🔄 **Smoother Self-Hosting Experience**  
 - Forks & self-hosted deployments now work **out of the box**.  
 - No more manual fixes—just deploy and enjoy!  
-
 
 ---
 
