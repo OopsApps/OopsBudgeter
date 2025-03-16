@@ -46,3 +46,4 @@ json.sqlite
 # workers
 sw.js
 workbox*.js
+swe*.js

@@ -1,5 +1,16 @@
 # OopsBudgeter Changelog
 
+## v2.2.1 - Patched The Api Error 🥲
+**Released: March 17, 2025**
+
+**Live Without A Bug For One Day... One Day**
+This update just fixes the crazy error from the previous commit!
+
+### 🛠️ Bug Fixes & Improvements
+ - Fixed The Wrong Implementation Of My Own Code... Can You Imagine That? I Could
+
+---
+
 ## v2.2.0 - Smart Settings & Dynamic Currency 💰🌍
 **Released: March 17, 2025**
 
@@ -43,6 +54,8 @@ This update brings a brand-new Balance Mode Toggle, giving you full control over
 ### 🛠️ Fixes & Adjustments
 - Improved UI transitions when switching balance views.
 - Fixed a state reset issue when rapidly switching modes.
+
+---
 
 ## v2.0.7 - More Automated 🚀
 **Released: March 15, 2025**  
