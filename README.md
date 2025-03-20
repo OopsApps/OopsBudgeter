@@ -8,7 +8,7 @@ OopsBudgeter is a personal finance management app designed to help users track t
 ###### Please use it for test purposes **only**, check the UI, features and abilities given to the web app or pwa. The PIN code is 696969
 [budget.oopsapps.tech](https://budget.oopsapps.tech/)
 
-##### A Simple Roadmap for this Project: [Roadmap via Github](https://github.com/orgs/OopsApps/projects/3)
+##### A Simple Roadmap for this Project: [Featurebase](https://oopsapps.featurebase.app/)
 
 ## Features
 
