@@ -31,7 +31,7 @@ import SortButtons from "../sorting/SortButtons";
 import { useRouter } from "next/navigation";
 
 export default function TransactionsList() {
-  const { filteredTransactions } = useBudget();
+  const { filteredTransactions, currency } = useBudget();
   const router = useRouter();
 
   return (
@@ -63,14 +63,14 @@ export default function TransactionsList() {
             return <SingleTransaction key={trx.id} trx={trx} />;
           })
         ) : (
-          <span className="text-center py-7">No transactions found</span>
+          <span className="text-center py-12">No transactions found</span>
         )}
       </div>
       <div className="border-t-2 mt-4" />
       <div className="mt-4 flex flex-col md:flex-row justify-between items-center gap-2">
         <div
           className="flex w-full gap-2 items-center justify-center cursor-pointer bg-accent hover:bg-blue-500 transition-colors duration-300 p-2 rounded-md"
-          onClick={() => printTransactions(filteredTransactions)}
+          onClick={() => printTransactions(filteredTransactions, currency)}
         >
           Print PDF
           <Icon
@@ -81,14 +81,14 @@ export default function TransactionsList() {
         </div>
         <div
           className="flex w-full gap-2 items-center justify-center cursor-pointer bg-accent hover:bg-blue-500 transition-colors duration-300 p-2 rounded-md"
-          onClick={() => exportTransactions(filteredTransactions)}
+          onClick={() => exportTransactions(filteredTransactions, currency)}
         >
           Export CSV
           <Icon icon="ix:simulation-table" width={20} aria-valuetext="Print" />
         </div>
         <div
           className="flex w-full gap-2 items-center justify-center cursor-pointer bg-accent hover:bg-blue-500 transition-colors duration-300 p-2 rounded-md"
-          onClick={() => downloadJSON(filteredTransactions)}
+          onClick={() => downloadJSON(filteredTransactions, currency)}
         >
           Export JSON
           <Icon

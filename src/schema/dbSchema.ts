@@ -22,6 +22,7 @@ import {
   timestamp,
   real,
   pgEnum,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 export const TypeEnum = pgEnum("TransactionType", ["income", "expense"]);
@@ -51,4 +52,8 @@ export const transactions = pgTable("transactions", {
   description: text("description"),
   date: timestamp("date", { mode: "string" }).notNull(),
   category: text("category"),
+
+  is_recurring: boolean("is_recurring").default(false).notNull(),
+  frequency: text("frequency").default("monthly").notNull(),
+  status: text("status").default("active").notNull(),
 });

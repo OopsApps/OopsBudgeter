@@ -1,5 +1,38 @@
 # OopsBudgeter Changelog
 
+## v2.3.0 - Recurring Transactions & Transaction Menu Revamp 🚀  
+**Released: March 20, 2025**  
+
+**Right-Click Your Transactions... Because You Can Now 😎**  
+This update introduces a **sleek right-click menu** for transactions! You can now delete them, download receipts, or manage recurring settings like an absolute boss.  
+
+### 🛠️ Bug Fixes & Improvements  
+- **Automated Recurring Transactions 🔄**  
+  - Self-hosted users now have **`node-cron`** running automatically.  
+  - Vercel users rely on **API-based scheduling (`/api/cron`)** instead.  
+  - No more "Wait, why didn’t my transaction repeat?" moments.  
+
+- **Improved Transaction Menu 🎛️**  
+  - **Right-click any transaction** for instant options!  
+  - **New Actions:**  
+    ✅ **Delete** 🗑️ - Because mistakes happen.  
+    ✅ **Download Receipt** 📄 - Official-looking proof of your spending habits.  
+    ✅ **Change Recurring Status** 🔄 - Activate, pause, or cancel recurring transactions easily.  
+
+- **CSV & JSON Export Enhancements 📤**  
+  - **Added formatted currency** (`$1,000.00 USD` instead of `1000`).  
+  - CSV filenames now include **timestamps** for better organization.  
+  - **Descriptions won’t break CSV formatting anymore** (no more weird Excel errors).  
+
+- **API Cleanup & Fixes 🛠️**  
+  - Removed the unnecessary `req` parameter from `/api/cron`.  
+  - **Improved TypeScript handling** (no more `Promise<any>` nonsense).  
+
+🔥 **Now transactions are smarter, exports are cleaner, and right-clicking things actually does something. Enjoy!** 🎉
+
+
+---
+
 ## v2.2.1 - Patched The Api Error 🥲
 **Released: March 17, 2025**
 

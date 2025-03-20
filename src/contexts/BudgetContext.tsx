@@ -32,7 +32,7 @@ interface BudgetContextType {
   totalBalance: number;
   startDate: Date;
   endDate: Date;
-  sortKey: "amount" | "date" | "id";
+  sortKey: "amount" | "date" | "id" | "recurring";
   sortOrder: "asc" | "desc";
   transactionTypeFilter: "all" | "income" | "expense";
   balanceMode: "total" | "timeframe";
@@ -41,10 +41,11 @@ interface BudgetContextType {
   setDateRange: (start: Date, end: Date) => void;
   addTransaction: (newTransaction: selectTransactionType) => void;
   removeTransaction: (id: number) => void;
-  sortTransactions: (key: "amount" | "date" | "id") => void;
+  sortTransactions: (key: "amount" | "date" | "id" | "recurring") => void;
   filterByType: (type: "all" | "income" | "expense") => void;
   toggleSortOrder: () => void;
   toggleBalanceMode: () => void;
+  updateTransactionStatus: (id: number, newStatus: string) => void;
 }
 
 const BudgetContext = createContext<BudgetContextType | undefined>(undefined);
@@ -56,7 +57,9 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
   >([]);
   const [startDate, setStartDate] = useState(startOfMonth(new Date()));
   const [endDate, setEndDate] = useState(endOfMonth(new Date()));
-  const [sortKey, setSortKey] = useState<"amount" | "date" | "id">("id");
+  const [sortKey, setSortKey] = useState<
+    "amount" | "date" | "id" | "recurring"
+  >("id");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [transactionTypeFilter, setTransactionTypeFilter] = useState<
     "all" | "income" | "expense"
@@ -132,7 +135,7 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
     filterTransactions(transactions, start, end, transactionTypeFilter);
   };
 
-  const sortTransactions = (key: "amount" | "date" | "id") => {
+  const sortTransactions = (key: "amount" | "date" | "id" | "recurring") => {
     let newSortOrder: "asc" | "desc" = "asc";
 
     if (sortKey === key) {
@@ -142,7 +145,20 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
     setSortKey(key);
     setSortOrder(newSortOrder);
 
-    const sorted = [...filteredTransactions].sort((a, b) => {
+    let sorted;
+
+    if (key === "recurring") {
+      sorted = transactions.filter(
+        (trx) => trx.is_recurring === true && trx.status !== "canceled"
+      );
+    } else {
+      sorted = [...transactions].filter((trx) => {
+        const trxDate = new Date(trx.date);
+        return trxDate >= startDate && trxDate <= endDate;
+      });
+    }
+
+    sorted.sort((a, b) => {
       if (key === "amount") {
         return newSortOrder === "asc"
           ? a.amount - b.amount
@@ -180,13 +196,15 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
       const transactionDate = parseISO(newTransaction.date);
       const isWithinTimeframe =
         transactionDate >= startDate && transactionDate <= endDate;
-      if (balanceMode === "total" || isWithinTimeframe) {
-        const updatedFiltered = [newTransaction, ...prev];
-        return sortKey === "id" && sortOrder === "desc"
-          ? updatedFiltered
-          : [...updatedFiltered].sort((a, b) => a.id - b.id);
+
+      if (!isWithinTimeframe) {
+        return prev;
       }
-      return prev;
+
+      const updatedFiltered = [newTransaction, ...prev];
+      return sortKey === "id" && sortOrder === "desc"
+        ? updatedFiltered
+        : [...updatedFiltered].sort((a, b) => a.id - b.id);
     });
   };
 
@@ -204,6 +222,16 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
         ? updatedFiltered
         : [...updatedFiltered].sort((a, b) => a.id - b.id);
     });
+  };
+
+  const updateTransactionStatus = (id: number, newStatus: string) => {
+    setTransactions((prev) =>
+      prev.map((trx) => (trx.id === id ? { ...trx, status: newStatus } : trx))
+    );
+
+    setFilteredTransactions((prev) =>
+      prev.map((trx) => (trx.id === id ? { ...trx, status: newStatus } : trx))
+    );
   };
 
   const toggleSortOrder = () => {
@@ -255,6 +283,7 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
         toggleBalanceMode,
         currency,
         updateCurrency,
+        updateTransactionStatus,
       }}
     >
       <AppProvider>{children}</AppProvider>

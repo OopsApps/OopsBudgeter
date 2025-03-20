@@ -57,6 +57,13 @@ export default function SortButtons() {
           onClick={() => sortTransactions("date")}
           popTitle="Sort by Date"
         />
+        <SortButton
+          sId="recurring"
+          sortKey={sortKey}
+          icon="fluent:calendar-arrow-repeat-all-16-filled"
+          onClick={() => sortTransactions("recurring")}
+          popTitle="Sort by Recurring Transactions"
+        />
       </div>
 
       <SortButton
@@ -65,7 +72,7 @@ export default function SortButtons() {
             ? "tabler:sort-ascending"
             : "tabler:sort-descending"
         }
-        className=" text-green-500 transition-all"
+        className="text-green-500 transition-all"
         onClick={() => toggleSortOrder()}
         popTitle={
           sortOrder === "asc" ? "Sort by Ascending" : "Sort by Descending"

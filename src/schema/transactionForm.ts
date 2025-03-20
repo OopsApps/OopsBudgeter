@@ -39,6 +39,20 @@ export const insertTransactionSchema = createInsertSchema(transactions, {
       }
       return val instanceof Date ? val : undefined;
     }, z.date({ required_error: "Date is required", invalid_type_error: "Invalid date format" })),
+
+  is_recurring: (schema) => schema.default(false),
+  frequency: (schema) =>
+    schema
+      .default("monthly")
+      .refine((val) => ["daily", "weekly", "monthly", "yearly"].includes(val), {
+        message: "Invalid frequency type",
+      }),
+  status: (schema) =>
+    schema
+      .default("active")
+      .refine((val) => ["active", "paused", "canceled"].includes(val), {
+        message: "Invalid status type",
+      }),
 });
 
 export const selectTransactionSchema = createSelectSchema(transactions);

@@ -149,6 +149,19 @@ This project is licensed under the **Apache License 2.0**. See the [LICENSE](LIC
 
 OopsBudgeter is your all-in-one finance tracker, **making sure you face your financial mistakes head-on! 🚀😂**
 
+> [!NOTE]  
+> **Currency Handling in OopsBudgeter 💰**  
+>
+> OopsBudgeter **stores all transactions in USD by default** for consistency across different currency selections.  
+>
+> - When you select a currency (e.g., **EUR**), the app **converts displayed amounts** using the latest exchange rate.  
+> - Example: If **1 USD = 0.92 EUR**, then a **$100 transaction** is shown as **€92** in the UI.  
+> - **New transactions follow the same rule**:  
+>   - If you enter **€92**, it will be **saved as 100 USD** in the database.  
+>   - If you switch to another currency later, the value will adjust accordingly.  
+>
+> 🔥 **This ensures your transactions remain globally consistent while allowing you to switch currencies anytime!** 🌍💰
+
 ---
 ### Disclaimer: About FakeAI Insights
 

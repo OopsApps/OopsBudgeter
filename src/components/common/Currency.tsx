@@ -68,13 +68,11 @@ export default function PriceDisplay({
       return;
     }
 
-    console.log(exchangeRates[correctCurrency]);
     if (exchangeRates[correctCurrency]) {
       const baseRate = exchangeRates["USD"] || 1;
       const targetRate = exchangeRates[correctCurrency] || 1;
 
       if (!baseRate || !targetRate) {
-        console.warn("Missing exchange rate for:", correctCurrency);
         setConvertedAmount(amount);
         return;
       }

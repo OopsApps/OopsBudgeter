@@ -15,63 +15,36 @@
  *   limitations under the License.
  */
 
-import React, { useState } from "react";
-import { Icon } from "@iconify/react";
+import React from "react";
 import { formatDate } from "@/lib/formateDate";
 import { selectTransactionType } from "@/schema/transactionForm";
 import TxCard from "../cards/TxCard";
 import PriceDisplay from "../common/Currency";
-import { useBudget } from "@/contexts/BudgetContext";
-import { toast } from "sonner";
-import {
-  AlertDialogAction,
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "../ui/alert-dialog";
-import { cn } from "@/lib/utils";
+
 import { categoryColors } from "@/constants/catColor";
 import { useApp } from "@/contexts/AppContext";
+import DeleteTransactionDialog from "./DeleteTransactionDialog";
+import RecurringStatusDialog from "./RecurringStatusDialog";
+
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import {  printReceipt } from "@/lib/download";
+import { useBudget } from "@/contexts/BudgetContext";
 
 export default function SingleTransaction({
   trx,
 }: Readonly<{ trx: selectTransactionType }>) {
-  const { removeTransaction } = useBudget();
+  const { currency } = useBudget();
   const { colorfulCategories, colorfulTransactions } = useApp();
-
-  const [confirmOpen, setConfirmOpen] = useState(false);
-
-  const handleDelete = async (id: number): Promise<void> => {
-    setConfirmOpen(false);
-
-    const response = await fetch("/api/transactions", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      removeTransaction(id);
-      toast.success("The transaction has been deleted successfully");
-      const audio = new Audio("/audio/delete.wav");
-      audio.volume = 0.4;
-      audio.play();
-    } else {
-      console.error(`Error: ${data.message}`);
-    }
-  };
 
   const getCategoryColor = (category: string) => {
     const match = categoryColors.find((c) => c.category === category);
+    if (category === "Other") return "#8D68D6";
     return match ? match.color : "#CCCCCC";
   };
 
@@ -84,82 +57,102 @@ export default function SingleTransaction({
             : "#e2444420"
           : ""
       }
-      className="p-3 bg-accent/40"
+      className="p-0 bg-accent/40"
     >
-      <div className="flex flex-col md:flex-row justify-between items-center">
-        <div className="flex flex-col">
-          <span className="max-w-md break-words">
-            {trx.category && trx.category !== "None" && (
-              <span
-                className="font-semibold"
+      <ContextMenu>
+        <ContextMenuTrigger>
+          <div className="flex p-4 flex-col md:flex-row gap-3 justify-between items-center select-none">
+            <div className="flex flex-col gap-2">
+              <span className="max-w-md break-words">
+                {trx.category && trx.category !== "None" && (
+                  <span
+                    className="font-semibold"
+                    style={{
+                      color:
+                        colorfulCategories === "On"
+                          ? getCategoryColor(trx.category)
+                          : "",
+                    }}
+                  >
+                    {trx.category}
+                  </span>
+                )}
+                {trx.category &&
+                  trx.category !== "None" &&
+                  trx.description &&
+                  " • "}
+                {trx.description && trx.description}
+              </span>
+              <span className="text-muted-foreground flex items-center gap-2">
+                {formatDate(trx.date)}
+                {trx.is_recurring && (
+                  <span className="hidden items-center md:flex">
+                    <Icon
+                      icon="fluent:arrow-repeat-all-24-filled"
+                      style={{
+                        color:
+                          trx.status === "active"
+                            ? "#3E70CC"
+                            : trx.status === "paused"
+                            ? "#DDBF3B"
+                            : "#E46060",
+                      }}
+                    />
+                  </span>
+                )}
+              </span>
+            </div>
+            <div className="font-bold flex items-center gap-2">
+              <div
+                className="flex items-center gap-1"
                 style={{
-                  color:
-                    colorfulCategories === "On"
-                      ? getCategoryColor(trx.category)
-                      : "",
+                  color: trx.type === "income" ? "#2DAC64" : "#e24444",
                 }}
               >
-                {trx.category}
-              </span>
-            )}
-            {trx.category &&
-              trx.category !== "None" &&
-              trx.description &&
-              " • "}
-            {trx.description && trx.description}
-          </span>
-          <span className="text-muted-foreground">{formatDate(trx.date)}</span>
-        </div>
-        <span
-          className="font-bold flex items-center gap-2"
-          style={{
-            color: trx.type === "income" ? "#2DAC64" : "#e24444",
-          }}
-        >
-          <PriceDisplay amount={trx.amount} />
-
-          <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-            <AlertDialogTrigger asChild>
-              <Icon
-                icon="mdi:trash-can-empty"
-                width={22}
-                className="hover:text-white text-red-400 transition-colors duration-300 cursor-pointer"
-              />
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to delete this transaction of{" "}
-                  <PriceDisplay
-                    amount={trx.amount}
-                    className={cn(
-                      "inline-flex font-semibold",
-                      trx.type === "income"
-                        ? "text-[#42cf7f]"
-                        : "text-[#e24444]"
-                    )}
-                  />{" "}
-                  made on{" "}
-                  <span className="text-black/80 dark:text-white/80">
-                    {formatDate(trx.date)}
+                {trx.type === "income" ? "+" : "-"}
+                <PriceDisplay amount={trx.amount} />
+                {trx.is_recurring && (
+                  <span className="flex items-center md:hidden">
+                    <Icon
+                      icon="fluent:arrow-repeat-all-24-filled"
+                      style={{
+                        color:
+                          trx.status === "active"
+                            ? "#3E70CC"
+                            : trx.status === "paused"
+                            ? "#DDBF3B"
+                            : "#E46060",
+                      }}
+                    />
                   </span>
-                  ? This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  className="bg-red-500 text-white hover:bg-red-600"
-                  onClick={() => handleDelete(trx.id)}
-                >
-                  Yes, Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </span>
-      </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent className="select-none">
+          <ContextMenuItem asChild>
+            <RecurringStatusDialog trx={trx} />
+          </ContextMenuItem>
+          <div className="border my-1 border-accent" />
+          <ContextMenuItem asChild>
+            <div
+              className="flex justify-between"
+              onClick={() => printReceipt(trx, currency)}
+            >
+              Print Receipt
+              <Icon
+                icon="line-md:downloading-loop"
+                className="min-w-5 min-h-5 text-purple-500"
+              />
+            </div>
+          </ContextMenuItem>
+          <div className="border my-1 border-accent" />
+          <ContextMenuItem asChild>
+            <DeleteTransactionDialog trx={trx} />
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
     </TxCard>
   );
 }

@@ -82,7 +82,16 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { type, amount, description, date, category } = await req.json();
+    const {
+      type,
+      amount,
+      description,
+      date,
+      category,
+      is_recurring,
+      frequency,
+      status,
+    } = await req.json();
 
     const validCategories =
       type === "income" ? incomeCategories : expenseCategories;
@@ -101,6 +110,9 @@ export async function POST(req: NextRequest) {
         description: description || "",
         date,
         category,
+        is_recurring,
+        frequency,
+        status,
       })
       .returning();
 
@@ -155,6 +167,44 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json(
       {
         message: "Failed to delete transaction",
+        error: (err as Error).message,
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  const { authorized, user, error } = await verifyToken(req);
+
+  if (!authorized) {
+    return NextResponse.json({ message: error }, { status: 401 });
+  }
+
+  try {
+    const { id, newStatus } = await req.json();
+
+    if (!id || !newStatus) {
+      return NextResponse.json(
+        { message: "Missing transaction ID or status" },
+        { status: 400 }
+      );
+    }
+
+    await db
+      .update(transactions)
+      .set({ status: newStatus })
+      .where(eq(transactions.id, id));
+
+    return NextResponse.json({
+      user,
+      message: "Transaction updated successfully",
+      updatedTransaction: { id, status: newStatus },
+    });
+  } catch (err) {
+    return NextResponse.json(
+      {
+        message: "Failed to update transaction",
         error: (err as Error).message,
       },
       { status: 500 }
