@@ -26,6 +26,8 @@ type AppContextType = {
   setColorfulCategories: (boolean: string) => void;
   colorfulTransactions: string;
   setColorfulTransactions: (boolean: string) => void;
+  soundEffects: string;
+  setSoundEffects: (boolean: string) => void;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -40,6 +42,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [colorfulTransactions, setColorfulTransactions] = useState(() => {
     return localStorage.getItem("colorfulTransactions") || "Off";
   });
+  const [soundEffects, setSoundEffects] = useState(() => {
+    return localStorage.getItem("soundEffects") || "Off";
+  });
 
   useEffect(() => {
     localStorage.setItem("appWidth", appWidth);
@@ -53,6 +58,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem("colorfulTransactions", colorfulTransactions);
   }, [colorfulTransactions]);
 
+  useEffect(() => {
+    localStorage.setItem("soundEffects", soundEffects);
+  }, [soundEffects]);
+
   return (
     <AppContext.Provider
       value={{
@@ -62,6 +71,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         setColorfulCategories,
         colorfulTransactions,
         setColorfulTransactions,
+        soundEffects,
+        setSoundEffects,
       }}
     >
       {children}

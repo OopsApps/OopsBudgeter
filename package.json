@@ -1,12 +1,17 @@
 {
   "name": "oops-budgeter",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack -p 3031",
     "build": "npx drizzle-kit push && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "g:tag": "git tag -s v$(node -p 'require(\"./package.json\").version') -m \"🔖tag: v$(node -p 'require(\"./package.json\").version') release\"",
+    "g:push": "git push && git push --follow-tags",
+    "v:major": "npm version major --no-git-tag-version",
+    "v:minor": "npm version minor --no-git-tag-version",
+    "v:patch": "npm version patch --no-git-tag-version"
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.2.9",

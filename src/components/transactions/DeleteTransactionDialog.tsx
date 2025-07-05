@@ -32,12 +32,14 @@ import { Icon } from "@iconify/react";
 import PriceDisplay from "../common/Currency";
 import { formatDate } from "@/lib/formateDate";
 import { selectTransactionType } from "@/schema/transactionForm";
+import { useApp } from "@/contexts/AppContext";
 
 export default function DeleteTransactionDialog({
   trx,
 }: Readonly<{ trx: selectTransactionType }>) {
   const { removeTransaction } = useBudget();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const { soundEffects } = useApp();
 
   const handleDelete = async (id: number): Promise<void> => {
     setConfirmOpen(false);
@@ -57,7 +59,9 @@ export default function DeleteTransactionDialog({
       toast.success("The transaction has been deleted successfully");
       const audio = new Audio("/audio/delete.wav");
       audio.volume = 0.4;
-      audio.play();
+      if (soundEffects === "On") {
+        audio.play();
+      }
     } else {
       console.error(`Error: ${data.message}`);
     }

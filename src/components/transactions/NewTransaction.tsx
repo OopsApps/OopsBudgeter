@@ -47,6 +47,7 @@ import {
 import { expenseCategories, incomeCategories } from "@/lib/categories";
 import { fetchExchangeRates } from "../common/Currency";
 import { ScrollArea } from "../ui/scroll-area";
+import { useApp } from "@/contexts/AppContext";
 
 export default function NewTransaction() {
   const { currency } = useBudget();
@@ -55,6 +56,7 @@ export default function NewTransaction() {
   const [exchangeRates, setExchangeRates] = useState<{ [key: string]: number }>(
     {}
   );
+  const { soundEffects } = useApp();
 
   useEffect(() => {
     const fetchRates = async () => {
@@ -127,7 +129,9 @@ export default function NewTransaction() {
             : "/audio/new-income.wav"
         );
         audio.volume = 0.1;
-        audio.play();
+        if (soundEffects === "On") {
+          audio.play();
+        }
         form.reset();
       }
     } catch (err) {

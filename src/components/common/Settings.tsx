@@ -41,6 +41,8 @@ export function Settings() {
     setColorfulCategories,
     colorfulTransactions,
     setColorfulTransactions,
+    soundEffects,
+    setSoundEffects,
   } = useApp();
 
   return (
@@ -132,6 +134,29 @@ export function Settings() {
                     value="Normal"
                     checked={colorfulTransactions === "On"}
                     onChange={() => setColorfulTransactions("On")}
+                  />
+                  On
+                </label>
+              </div>
+            </div>
+            <div className="flex justify-between items-center">
+              <label>Sound Effects:</label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Input
+                    type="radio"
+                    value="Compact"
+                    checked={soundEffects === "Off"}
+                    onChange={() => setSoundEffects("Off")}
+                  />
+                  Off
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Input
+                    type="radio"
+                    value="Normal"
+                    checked={soundEffects === "On"}
+                    onChange={() => setSoundEffects("On")}
                   />
                   On
                 </label>
