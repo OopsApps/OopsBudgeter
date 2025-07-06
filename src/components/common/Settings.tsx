@@ -31,6 +31,15 @@ import {
 import { useBudget } from "@/contexts/BudgetContext";
 import { Input } from "../ui/input";
 import { useApp } from "@/contexts/AppContext";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { supportedCurrencies } from "@/constants/currencies";
+import Link from "next/link";
 
 export function Settings() {
   const { currency, updateCurrency } = useBudget();
@@ -59,16 +68,33 @@ export function Settings() {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="flex justify-between items-center">
-              <label>Currency:</label>
-              <Input
-                value={currency}
-                onChange={(e) => {
-                  updateCurrency(e.target.value);
-                }}
-                className="max-w-16"
-                autoFocus={false}
-              />
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between items-center">
+                <Link
+                  href="https://en.wikipedia.org/wiki/ISO_4217"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Learn more about ISO 4217 currency codes"
+                  className="hover:underline cursor-pointer"
+                >
+                  Currency:
+                </Link>
+                <Select
+                  value={currency}
+                  onValueChange={(value) => updateCurrency(value)}
+                >
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Select currency" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {supportedCurrencies.map((curr) => (
+                      <SelectItem key={curr} value={curr}>
+                        {curr}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div className="hidden md:flex justify-between items-center">
               <label>App Width:</label>
