@@ -20,10 +20,25 @@ import { transactions } from "./dbSchema";
 import { z } from "zod";
 
 export const insertTransactionSchema = createInsertSchema(transactions, {
-  amount: (schema) =>
-    schema
-      .min(0, "Amount must be greater than 0")
-      .positive("Amount must be a positive number"),
+  amount: () =>
+    z.preprocess(
+      (val) =>
+        typeof val === "string" && val.trim() !== ""
+          ? Number(val)
+          : typeof val === "number"
+          ? val
+          : undefined,
+      z
+        .number({
+          required_error: "Amount is required",
+          invalid_type_error: "Amount must be a number",
+        })
+        .min(0.01, "Amount must be greater than 0")
+        .positive("Amount must be a positive number")
+        .refine((val) => /^[0-9]+(\.[0-9]{1,2})?$/.test(val.toString()), {
+          message: "Amount must be a valid decimal number (up to 2 decimals)",
+        })
+    ),
   description: (schema) =>
     schema
       .max(
@@ -32,31 +47,19 @@ export const insertTransactionSchema = createInsertSchema(transactions, {
       )
       .optional(),
   date: () =>
-    z.preprocess((val) => {
-      if (typeof val === "string") {
-        const parsedDate = new Date(val);
-        return isNaN(parsedDate.getTime()) ? undefined : parsedDate;
-      }
-      return val instanceof Date ? val : undefined;
-    }, z.date({ required_error: "Date is required", invalid_type_error: "Invalid date format" })),
-
-  is_recurring: (schema) => schema.default(false),
-  frequency: (schema) =>
-    schema
-      .default("monthly")
-      .refine((val) => ["daily", "weekly", "monthly", "yearly"].includes(val), {
-        message: "Invalid frequency type",
-      }),
-  status: (schema) =>
-    schema
-      .default("active")
-      .refine((val) => ["active", "paused", "canceled"].includes(val), {
-        message: "Invalid status type",
-      }),
+    z.preprocess(
+      (val) => (typeof val === "string" ? new Date(val) : val),
+      z.date({
+        required_error: "Date is required",
+        invalid_type_error: "Invalid date format",
+      })
+    ),
+  is_actual: (schema) => schema.default(true),
+  frequency: () => z.enum(["daily", "weekly", "monthly", "yearly"]).optional(),
+  is_consistent_amount: () => z.boolean().optional(),
 });
 
 export const selectTransactionSchema = createSelectSchema(transactions);
 
-export type insertTransactionType = typeof insertTransactionSchema._type;
-
-export type selectTransactionType = typeof selectTransactionSchema._type;
+export type insertTransactionType = z.infer<typeof insertTransactionSchema>;
+export type selectTransactionType = z.infer<typeof selectTransactionSchema>;

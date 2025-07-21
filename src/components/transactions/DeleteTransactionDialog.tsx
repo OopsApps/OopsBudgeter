@@ -85,7 +85,9 @@ export default function DeleteTransactionDialog({
           <AlertDialogDescription>
             Are you sure you want to delete this transaction of{" "}
             <PriceDisplay
-              amount={trx.amount}
+              trx={{
+                amount: trx.amount,
+              }}
               className={cn(
                 "inline-flex font-semibold",
                 trx.type === "income" ? "text-[#42cf7f]" : "text-[#e24444]"

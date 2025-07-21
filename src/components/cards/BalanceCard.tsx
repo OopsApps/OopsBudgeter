@@ -20,7 +20,6 @@ import React, { useEffect, useState } from "react";
 import HoverEffect from "../effects/HoverEffect";
 import PriceDisplay from "../common/Currency";
 import { useBudget } from "@/contexts/BudgetContext";
-import { motion } from "framer-motion";
 import { Icon } from "@iconify/react/dist/iconify.js";
 
 export default function BalanceCard() {
@@ -41,10 +40,12 @@ export default function BalanceCard() {
   return (
     <HoverEffect className="p-2">
       <div className="flex flex-col items-center justify-center font-semibold text-foreground">
-        <motion.h2
-          className="flex gap-1 items-center"
-          animate={{ y: animateText ? -25 : 0, opacity: animateText ? 0 : 1 }}
-          transition={{ ease: "easeInOut", duration: 0.4 }}
+        <h2
+          className={`flex gap-1 items-center transition-all duration-300 ${
+            animateText
+              ? "opacity-0 -translate-y-6"
+              : "opacity-100 translate-y-0"
+          }`}
         >
           {balanceMode === "total" ? "Total Balance" : "Timeframe Balance"}
           <Icon
@@ -52,15 +53,20 @@ export default function BalanceCard() {
             icon="line-md:filter"
             className={`${balanceMode !== "total" && "text-[#1e8fc9]"}`}
           />
-        </motion.h2>
-        <motion.span
-          animate={{ y: animateText ? 25 : 0, opacity: animateText ? 0 : 1 }}
-          transition={{ ease: "easeInOut", duration: 0.3 }}
+        </h2>
+        <span
+          className={`transition-all duration-300 ${
+            animateText
+              ? "opacity-0 translate-y-6"
+              : "opacity-100 translate-y-0"
+          }`}
         >
           <PriceDisplay
-            amount={balanceMode === "total" ? totalBalance : balance}
+            trx={{
+              amount: balanceMode === "total" ? totalBalance : balance,
+            }}
           />
-        </motion.span>
+        </span>
       </div>
     </HoverEffect>
   );

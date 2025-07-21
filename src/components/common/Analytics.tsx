@@ -19,7 +19,7 @@
 import { useBudget } from "@/contexts/BudgetContext";
 import { getMonthlyTrends } from "@/lib/monthlyTrends";
 import { Icon } from "@iconify/react";
-import { format } from "date-fns";
+import { addDays, format, formatISO } from "date-fns";
 import React from "react";
 import * as Recharts from "recharts";
 import PriceDisplay from "./Currency";
@@ -97,7 +97,7 @@ export default function AnalyticsWrapper() {
     .reduce((acc: Record<string, Record<string, number>>, trx) => {
       const month = format(new Date(trx.date), "MMM yyyy");
 
-      if (!acc[month]) acc[month] = {}; // ✅ No more `{ name: string }` in numeric data
+      if (!acc[month]) acc[month] = {};
 
       acc[month][trx.category ?? "Uncategorized"] =
         (acc[month][trx.category ?? "Uncategorized"] || 0) + trx.amount;
@@ -115,6 +115,47 @@ export default function AnalyticsWrapper() {
   const topTransactions = [...transactions]
     .sort((a, b) => b.amount - a.amount)
     .slice(0, 5);
+
+  const futurePredictedBalances: {
+    date: string;
+    balance: number;
+    predictedIncome: number;
+    predictedExpenses: number;
+  }[] = [];
+
+  const today = new Date();
+  let balance = totalIncome - totalExpenses;
+
+  for (let i = 1; i <= 30; i++) {
+    const futureDate = addDays(today, i);
+    const dateStr = formatISO(futureDate, { representation: "date" });
+
+    const sameDayRecurring = transactions.filter(
+      (t) =>
+        t.is_recurring &&
+        new Date(t.date).getDate() === futureDate.getDate()
+    );
+
+    let dailyIncome = 0;
+    let dailyExpenses = 0;
+
+    for (const trx of sameDayRecurring) {
+      if (trx.type === "income") {
+        balance += trx.amount;
+        dailyIncome += trx.amount;
+      } else {
+        balance -= trx.amount;
+        dailyExpenses += trx.amount;
+      }
+    }
+
+    futurePredictedBalances.push({
+      date: dateStr,
+      balance,
+      predictedIncome: dailyIncome,
+      predictedExpenses: dailyExpenses,
+    });
+  }
 
   return (
     <div className="border-t-2 border-black/20 flex flex-col gap-5">
@@ -153,7 +194,11 @@ export default function AnalyticsWrapper() {
         <div className="bg-background p-4 rounded-lg text-center">
           <h2 className="text-lg font-semibold">📉 Average Monthly Spending</h2>
           <p className="text-2xl font-bold text-yellow-500">
-            <PriceDisplay amount={Number(avgSpending.toFixed(2))} />
+            <PriceDisplay
+              trx={{
+                amount: Number(avgSpending.toFixed(2)),
+              }}
+            />
           </p>
         </div>
 
@@ -218,7 +263,7 @@ export default function AnalyticsWrapper() {
                             >
                               {key.charAt(0).toUpperCase() + key.slice(1)}:
                             </span>
-                            <PriceDisplay amount={Number(amount)} />
+                            <PriceDisplay trx={{ amount: Number(amount) }} />
                           </p>
                         );
                       })}
@@ -263,11 +308,12 @@ export default function AnalyticsWrapper() {
                       <p>
                         💰 Total Spent:{" "}
                         <PriceDisplay
-                          amount={
-                            typeof data.value === "number"
-                              ? data.value.toFixed(2)
-                              : "0.00"
-                          }
+                          trx={{
+                            amount:
+                              typeof data.value === "number"
+                                ? data.value.toFixed(2)
+                                : "0.00",
+                          }}
                         />
                       </p>
                     </div>
@@ -313,7 +359,7 @@ export default function AnalyticsWrapper() {
                             >
                               {key.charAt(0).toUpperCase() + key.slice(1)}:
                             </span>
-                            <PriceDisplay amount={Number(amount)} />
+                            <PriceDisplay trx={{ amount: Number(amount) }} />
                           </p>
                         );
                       })}
@@ -362,7 +408,7 @@ export default function AnalyticsWrapper() {
                           typeof entry.value === "number"
                             ? entry.value.toFixed(2)
                             : "0.00";
-                        const color = entry.color || "#FFFFFF"; // ✅ Get color from Recharts or default white
+                        const color = entry.color || "#FFFFFF";
 
                         return (
                           <p
@@ -382,7 +428,7 @@ export default function AnalyticsWrapper() {
                                 {key.charAt(0).toUpperCase() + key.slice(1)}:
                               </span>
                             </span>
-                            <PriceDisplay amount={Number(amount)} />
+                            <PriceDisplay trx={{ amount: Number(amount) }} />
                           </p>
                         );
                       })}
@@ -424,7 +470,9 @@ export default function AnalyticsWrapper() {
                     <div className="bg-background p-2 rounded-md text-foreground">
                       <p>
                         💰 Amount:{" "}
-                        <PriceDisplay amount={data.amount.toFixed(2)} />
+                        <PriceDisplay
+                          trx={{ amount: data.amount.toFixed(2) }}
+                        />
                       </p>
                       <p>📂 Category: {data.category ?? "Uncategorized"}</p>
                       <p className="text-sm">{data.description}</p>
@@ -455,7 +503,9 @@ export default function AnalyticsWrapper() {
                       <p className="font-bold">{data.name}</p>
                       <p>
                         📊 Balance:{" "}
-                        <PriceDisplay amount={data.balance.toFixed(2)} />
+                        <PriceDisplay
+                          trx={{ amount: data.balance.toFixed(2) }}
+                        />
                       </p>
                     </div>
                   );
@@ -469,6 +519,70 @@ export default function AnalyticsWrapper() {
               dataKey="balance"
               stroke="#2DAC64"
               strokeWidth={2}
+            />
+          </Recharts.LineChart>
+        </Recharts.ResponsiveContainer>
+      </div>
+
+      <div className="bg-background p-4 rounded-lg">
+        <h2 className="text-lg font-semibold mb-2">
+          🔮 Predicted Balance (Next 30 Days)
+        </h2>
+        <Recharts.ResponsiveContainer width="100%" height={300}>
+          <Recharts.LineChart data={futurePredictedBalances}>
+            <Recharts.XAxis dataKey="date" />
+            <Recharts.YAxis />
+            <Recharts.Tooltip
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  const data = payload[0].payload;
+                  return (
+                    <div className="bg-background p-2 rounded-md text-foreground shadow-md">
+                      <p className="font-bold">{data.date}</p>
+                      <p>
+                        💸 Predicted Balance:{" "}
+                        <PriceDisplay
+                          trx={{ amount: data.balance.toFixed(2) }}
+                        />
+                      </p>
+                      <p>
+                        💚 Predicted Income:{" "}
+                        <PriceDisplay
+                          trx={{ amount: data.predictedIncome.toFixed(2) }}
+                        />
+                      </p>
+                      <p>
+                        ❤️ Predicted Expenses:{" "}
+                        <PriceDisplay
+                          trx={{ amount: data.predictedExpenses.toFixed(2) }}
+                        />
+                      </p>
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            />
+            <Recharts.Legend />
+            <Recharts.Line
+              type="monotone"
+              dataKey="balance"
+              stroke="#A155B9"
+              strokeWidth={2}
+            />
+            <Recharts.Line
+              type="monotone"
+              dataKey="predictedIncome"
+              stroke="#2DAC64"
+              strokeWidth={2}
+              dot={false}
+            />
+            <Recharts.Line
+              type="monotone"
+              dataKey="predictedExpenses"
+              stroke="#E24444"
+              strokeWidth={2}
+              dot={false}
             />
           </Recharts.LineChart>
         </Recharts.ResponsiveContainer>

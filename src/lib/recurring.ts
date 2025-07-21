@@ -20,6 +20,7 @@ import cron from "node-cron";
 import { transactions } from "@/schema/dbSchema";
 import { eq, and, desc } from "drizzle-orm";
 import { addDays, addWeeks, addMonths, addYears, format } from "date-fns";
+import { isNotNull } from "drizzle-orm";
 
 const isServerless = process.env.VERCEL === "1";
 
@@ -39,58 +40,79 @@ const getNextDueDate = (lastGeneratedDate: Date, frequency: string): Date => {
 };
 
 export const processRecurringTransactions = async () => {
-  const today = new Date();
-
-  const recurringTrxs = await db
+  const templates = await db
     .select()
     .from(transactions)
     .where(
       and(
+        eq(transactions.status, "active"),
         eq(transactions.is_recurring, true),
-        eq(transactions.status, "active")
+        isNotNull(transactions.frequency)
       )
     );
 
-  for (const trx of recurringTrxs) {
+  const now = new Date();
+
+  for (const template of templates) {
+    const frequency = template.frequency!;
+    const baseTime = new Date(template.date);
     const lastGenerated = await db
       .select()
       .from(transactions)
-      .where(
-        and(
-          eq(transactions.description, trx.description ?? ""),
-          eq(transactions.amount, trx.amount),
-          eq(transactions.category, trx.category ?? ""),
-          eq(transactions.is_recurring, false)
-        )
-      )
+      .where(eq(transactions.recurring_parent_id, template.id))
       .orderBy(desc(transactions.date))
       .limit(1);
 
-    const lastTransactionDate = lastGenerated.length
+    const lastDate = lastGenerated.length
       ? new Date(lastGenerated[0].date)
-      : new Date(trx.date);
+      : baseTime;
 
-    let nextDueDate = getNextDueDate(lastTransactionDate, trx.frequency);
+    const dateCursor = new Date(lastDate);
 
-    while (nextDueDate <= today) {
-      await db.insert(transactions).values({
-        type: trx.type,
-        amount: trx.amount,
-        description: trx.description,
-        date: format(nextDueDate, "yyyy-MM-dd'T'HH:mm:ss"),
-        category: trx.category,
-        is_recurring: false,
-      });
+    while (now >= dateCursor) {
+      const alreadyExists = await db
+        .select()
+        .from(transactions)
+        .where(
+          and(
+            eq(transactions.recurring_parent_id, template.id),
+            eq(transactions.date, format(dateCursor, "yyyy-MM-dd'T'HH:mm:ss"))
+          )
+        )
+        .limit(1);
 
-      nextDueDate = getNextDueDate(nextDueDate, trx.frequency);
+      if (!alreadyExists.length) {
+        await db.insert(transactions).values({
+          type: template.type,
+          amount: template.amount,
+          original_amount: template.original_amount,
+          original_currency: template.original_currency,
+          description: template.description,
+          date: format(dateCursor, "yyyy-MM-dd'T'HH:mm:ss"),
+          category: template.category,
+          is_actual: template.is_consistent_amount ?? false,
+          recurring_parent_id: template.id,
+          status: template.status,
+          is_recurring: false,
+          frequency: null,
+        });
+      }
+
+      dateCursor.setTime(getNextDueDate(dateCursor, frequency).getTime());
     }
   }
+
+  console.log("Recurring transactions up to date");
 };
 
 if (!isServerless) {
   cron.schedule("0 0 * * *", async () => {
     console.log("Running recurring transaction processor...");
-    await processRecurringTransactions();
-    console.log("Recurring transactions processed successfully!");
+    try {
+      await processRecurringTransactions();
+      console.log("Recurring transactions processed successfully!");
+    } catch (error) {
+      console.error("Recurring transaction processor failed:", error);
+    }
   });
 }

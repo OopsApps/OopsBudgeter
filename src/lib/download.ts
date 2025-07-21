@@ -62,12 +62,20 @@ export const printTransactions = async (
                     convertedAmount,
                     correctCurrency
                   );
+                  const originalInfo =
+                    trx.original_amount && trx.original_currency
+                      ? ` (${formatCurrency(
+                          trx.original_amount,
+                          trx.original_currency
+                        )})`
+                      : "";
+
                   return `
                     <tr class="odd:bg-gray-100 even:bg-white hover:bg-gray-200">
                       <td class="border px-4 py-2">${trx.id}</td>
                       <td class="border px-4 py-2">${trx.type}</td>
                       <td class="border px-4 py-2">${trx.category}</td>
-                      <td class="border px-4 py-2">${formattedAmount}</td>
+                      <td class="border px-4 py-2">${formattedAmount}${originalInfo}</td>
                       <td class="border px-4 py-2 max-w-md break-words">${
                         trx.description
                       }</td>
@@ -84,54 +92,51 @@ export const printTransactions = async (
     `);
 
     printWindow.document.close();
-    printWindow.print();
+    printWindow.onload = () => {
+      printWindow.print();
+    };
   }
 };
 
 export const exportTransactions = async (
-  transactions: selectTransactionType[],
-  currency = "USD"
+  transactions: selectTransactionType[]
 ) => {
-  const exchangeRates = await fetchExchangeRates("USD");
-  const correctCurrency =
-    currency.length !== 3 ? "USD" : currency.toUpperCase();
-  const baseRate = exchangeRates["USD"] || 1;
-  const targetRate = exchangeRates[correctCurrency] || 1;
-
   const headers = [
-    "ID",
-    "Date",
-    "Category",
-    "Amount",
-    "Formatted Amount",
-    "Type",
-    "Description",
+    "id",
+    "date",
+    "type",
+    "amount",
+    "original_amount",
+    "original_currency",
+    "description",
+    "category",
+    "status",
+    "recurring_parent_id",
+    "is_recurring",
+    "frequency",
   ];
 
   const csvRows = transactions.map((trx): string => {
-    const convertedAmount = (trx.amount / baseRate) * targetRate;
-
-    const formattedAmount = formatCurrency(convertedAmount, correctCurrency);
-
-    const safeDescription = trx.description
-      ? `"${trx.description.replace(/"/g, '""')}"`
-      : "N/A";
-
-    return [
-      trx.id,
-      trx.date,
-      trx.category,
-      trx.amount,
-      formattedAmount,
-      trx.type,
-      safeDescription,
-    ].join(",");
+    const row = [
+      trx.id ?? "",
+      trx.date ?? "",
+      trx.type ?? "",
+      trx.amount ?? "",
+      trx.original_amount ?? "",
+      trx.original_currency ?? "",
+      trx.description ? `"${trx.description.replace(/"/g, '""')}"` : "",
+      trx.category ?? "",
+      trx.status ?? "",
+      trx.recurring_parent_id ?? "",
+      trx.is_recurring ?? "",
+      trx.frequency ?? "",
+    ];
+    return row.join(",");
   });
 
-  const csvContent = [headers, ...csvRows].join("\n");
+  const csvContent = [headers.join(","), ...csvRows].join("\n");
 
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-
   const timestamp = new Date().toISOString().replace(/[:.-]/g, "_");
   const filename = `transactions_${timestamp}.csv`;
 
@@ -194,6 +199,13 @@ export const printReceipt = async (
   const convertedAmount = (transaction.amount / baseRate) * targetRate;
 
   const formattedAmount = formatCurrency(convertedAmount, correctCurrency);
+  const originalInfo =
+    transaction.original_amount && transaction.original_currency
+      ? `(${formatCurrency(
+          transaction.original_amount,
+          transaction.original_currency
+        )}) `
+      : "";
 
   if (receiptWindow) {
     receiptWindow.document.write(`
@@ -234,7 +246,7 @@ export const printReceipt = async (
               <strong>Date:</strong> <span>${transaction.date}</span>
             </div>
             <div class="flex justify-between">
-              <strong>Amount:</strong> <span class="uppercase">${formattedAmount}</span>
+                <strong>Amount:</strong> <span class="uppercase">${originalInfo}${formattedAmount}</span>
             </div>
             <div class="flex justify-between">
               <strong>Category:</strong> <span>${transaction.category}</span>
@@ -258,6 +270,8 @@ export const printReceipt = async (
     </html>
   `);
     receiptWindow.document.close();
-    receiptWindow.print();
+    receiptWindow.onload = () => {
+      receiptWindow.print();
+    };
   }
 };

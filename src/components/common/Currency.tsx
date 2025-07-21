@@ -18,6 +18,24 @@
 
 import { useBudget } from "@/contexts/BudgetContext";
 import { useEffect, useState } from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useApp } from "@/contexts/AppContext";
+import { cn } from "@/lib/utils";
+
+interface PriceDisplayProps {
+  trx: {
+    amount: number;
+    currency?: string | null;
+    original_amount?: number | null;
+    original_currency?: string | null;
+  };
+  className?: string;
+}
 
 export const fetchExchangeRates = async (baseCurrency: string) => {
   try {
@@ -32,27 +50,31 @@ export const fetchExchangeRates = async (baseCurrency: string) => {
   }
 };
 
-export const formatCurrency = (amount: number, currency: string) => {
+export const formatCurrency = (amount?: number, currency?: string) => {
+  if (amount === undefined || currency === undefined) {
+    return "";
+  }
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: currency,
   }).format(amount);
 };
 
-export default function PriceDisplay({
-  amount,
-  className,
-}: {
-  amount: number;
-  className?: string;
-}) {
-  const { currency } = useBudget();
+export default function PriceDisplay({ trx, className }: PriceDisplayProps) {
+  const { currency: budgetCurrency } = useBudget();
+  const { amount, currency, original_amount, original_currency } = trx;
+  const { showOriginalAmount } = useApp();
+
   const [exchangeRates, setExchangeRates] = useState<{ [key: string]: number }>(
     {}
   );
   const [convertedAmount, setConvertedAmount] = useState(amount);
   const correctCurrency =
-    currency.length !== 3 ? "USD" : currency.toUpperCase();
+    (currency && currency.length === 3
+      ? currency.toUpperCase()
+      : budgetCurrency.length === 3
+      ? budgetCurrency.toUpperCase()
+      : "USD") || "USD";
 
   useEffect(() => {
     const fetchRates = async () => {
@@ -84,8 +106,33 @@ export default function PriceDisplay({
   }, [currency, exchangeRates, amount, correctCurrency]);
 
   return (
-    <span className={className}>
-      {formatCurrency(convertedAmount, correctCurrency)}
-    </span>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span
+            className={cn(
+              "flex flex-col justify-between items-center",
+              className
+            )}
+          >
+            {showOriginalAmount === "On" &&
+            typeof original_amount === "number" &&
+            typeof original_currency === "string" ? (
+              <>{formatCurrency(original_amount, original_currency)}</>
+            ) : (
+              <>{formatCurrency(convertedAmount, correctCurrency)}</>
+            )}
+          </span>
+        </TooltipTrigger>
+
+        {showOriginalAmount === "Off" &&
+          typeof original_amount === "number" &&
+          typeof original_currency === "string" && (
+            <TooltipContent className="font-semibold text-sm" side="top">
+              Original: {original_amount} {original_currency}
+            </TooltipContent>
+          )}
+      </Tooltip>
+    </TooltipProvider>
   );
 }

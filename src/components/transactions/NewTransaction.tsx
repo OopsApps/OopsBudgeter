@@ -52,40 +52,46 @@ import { useApp } from "@/contexts/AppContext";
 export default function NewTransaction() {
   const { currency } = useBudget();
   const [type, setType] = useState<"income" | "expense">("income");
+  const [mode, setMode] = useState<"normal" | "recurring">("normal");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [exchangeRates, setExchangeRates] = useState<{ [key: string]: number }>(
     {}
   );
   const { soundEffects } = useApp();
+  const { addTransaction } = useBudget();
 
   useEffect(() => {
     const fetchRates = async () => {
       const rates = await fetchExchangeRates("USD");
       setExchangeRates(rates);
     };
-
     fetchRates();
   }, []);
 
-  const { addTransaction } = useBudget();
-
-  const handleToggle = (selectedType: "income" | "expense") => {
-    setType(selectedType);
-    form.setValue("type", selectedType);
-  };
-
-  const form = useForm<insertTransactionType>({
+  const unifiedForm = useForm<insertTransactionType>({
     resolver: zodResolver(insertTransactionSchema),
     defaultValues: {
       date: new Date(),
       category: "None",
-      is_recurring: false,
+      type: "income",
       frequency: "monthly",
       status: "active",
+      is_recurring: false,
+      is_actual: true,
     },
   });
 
-  const onSubmit = async (data: insertTransactionType) => {
+  const handleToggleType = (selectedType: "income" | "expense") => {
+    setType(selectedType);
+    unifiedForm.setValue("type", selectedType);
+  };
+
+  const handleModeChange = (selectedMode: "normal" | "recurring") => {
+    setMode(selectedMode);
+    unifiedForm.setValue("is_recurring", selectedMode === "recurring");
+  };
+
+  const onSubmitUnified = async (data: insertTransactionType) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
 
@@ -99,10 +105,17 @@ export default function NewTransaction() {
     const exchangeRate = exchangeRates[correctCurrency] || 1;
     const amountInUSD = data.amount / exchangeRate;
 
+    const amountAddedAs = currency !== "USD" ? data.amount : undefined;
+
     const formData = {
       ...data,
       amount: amountInUSD,
       date: utcDate.toISOString(),
+      ...(amountAddedAs !== undefined && { amount_added_as: amountAddedAs }),
+      ...(currency !== "USD" && {
+        original_amount: data.amount,
+        original_currency: currency.toUpperCase(),
+      }),
     };
 
     try {
@@ -117,7 +130,18 @@ export default function NewTransaction() {
       const result = await response.json();
 
       if (response.ok) {
-        addTransaction(result.transaction);
+        if (mode === "recurring") {
+          addTransaction(result.transaction);
+          addTransaction({
+            ...result.transaction,
+            is_recurring: false,
+          });
+        } else {
+          addTransaction(result.transaction);
+        }
+
+        await fetch("/api/cron");
+
         toast.success(
           formData.type === "income"
             ? "Income added successfully! 💰"
@@ -125,14 +149,26 @@ export default function NewTransaction() {
         );
         const audio = new Audio(
           formData.type === "income"
-            ? "/audio/new-expense.wav"
-            : "/audio/new-income.wav"
+            ? "/audio/new-income.wav"
+            : "/audio/new-expense.wav"
         );
         audio.volume = 0.1;
         if (soundEffects === "On") {
           audio.play();
         }
-        form.reset();
+
+        unifiedForm.reset({
+          amount: NaN,
+          description: "",
+          date: new Date(),
+          category: "None",
+          type,
+          frequency: "monthly",
+          status: "active",
+          is_recurring: mode === "recurring",
+          is_actual: true,
+          is_consistent_amount: true,
+        });
       }
     } catch (err) {
       toast.error(`Something went wrong: ${err}`);
@@ -156,56 +192,77 @@ export default function NewTransaction() {
         <ScrollArea className="overflow-auto p-4 scroll-smooth scroll-p-2 no-scrollbar">
           <DrawerTitle className="hidden">Add a new transaction</DrawerTitle>
           <div className="h-full flex flex-col gap-4 justify-center items-center">
-            <Form {...form}>
+            <Form {...unifiedForm}>
               <form
-                onSubmit={form.handleSubmit(onSubmit)}
+                onSubmit={unifiedForm.handleSubmit(onSubmitUnified)}
                 className="max-w-lg w-full h-full py-2 flex flex-col space-y-10 justify-between"
               >
                 <FormField
-                  control={form.control}
+                  control={unifiedForm.control}
                   name="type"
-                  render={({}) => (
-                    <FormItem className="flex justify-center items-center mb-6 space-x-2">
+                  render={() => (
+                    <div className="grid grid-cols-2 gap-2 mb-2">
                       <button
                         type="button"
-                        className={`px-6 py-2 rounded-lg text-white font-semibold transition duration-300 ${
-                          type === "income" ? "bg-green-500" : "bg-gray-700"
+                        className={`w-full px-4 py-2 rounded-lg text-white font-semibold transition duration-300 ${
+                          type === "income" ? "bg-green-600" : "bg-secondary"
                         }`}
-                        onClick={() => handleToggle("income")}
+                        onClick={() => handleToggleType("income")}
                       >
                         Income
                       </button>
-                      <Input
-                        {...form.register("type")}
-                        value={type}
-                        type="hidden"
-                      />
                       <button
                         type="button"
-                        className={`px-6 py-2 rounded-lg text-white font-semibold transition duration-300 ${
-                          type === "expense" ? "bg-red-500" : "bg-gray-700"
+                        className={`w-full px-4 py-2 rounded-lg text-white font-semibold transition duration-300 ${
+                          type === "expense" ? "bg-red-600" : "bg-secondary"
                         }`}
-                        onClick={() => handleToggle("expense")}
+                        onClick={() => handleToggleType("expense")}
                       >
                         Expense
                       </button>
-                    </FormItem>
+                      <Input
+                        {...unifiedForm.register("type")}
+                        value={type}
+                        type="hidden"
+                      />
+                    </div>
                   )}
                 />
 
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    className={`w-full px-4 py-2 rounded-lg text-white font-semibold transition duration-300 ${
+                      mode === "normal" ? "bg-slate-700" : "bg-secondary"
+                    }`}
+                    onClick={() => handleModeChange("normal")}
+                  >
+                    One-Time
+                  </button>
+                  <button
+                    type="button"
+                    className={`w-full px-4 py-2 rounded-lg text-white font-semibold transition duration-300 ${
+                      mode === "recurring" ? "bg-slate-700" : "bg-secondary"
+                    }`}
+                    onClick={() => handleModeChange("recurring")}
+                  >
+                    Recurring
+                  </button>
+                </div>
+
                 <div className="flex flex-col gap-4 px-4 md:px-0">
                   <FormField
-                    control={form.control}
+                    control={unifiedForm.control}
                     name="category"
                     render={({ field }) => (
                       <FormItem className="flex justify-between">
                         <FormLabel>Category</FormLabel>
                         <Select
-                          defaultValue={field.value || "None"}
+                          value={field.value ?? "None"}
                           onValueChange={field.onChange}
                         >
                           <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder={field.value || "None"} />
+                            <SelectValue placeholder={field.value ?? "None"} />
                           </SelectTrigger>
                           <SelectContent
                             className="max-w-60 md:max-w-sm"
@@ -226,31 +283,33 @@ export default function NewTransaction() {
                   />
 
                   <FormField
-                    control={form.control}
+                    control={unifiedForm.control}
                     name="amount"
-                    render={({}) => (
+                    render={({ field }) => (
                       <FormItem className="flex justify-between">
                         <FormLabel>Amount</FormLabel>
                         <Input
                           type="number"
                           className="max-w-60 md:max-w-sm text-right"
-                          {...form.register("amount", {
-                            setValueAs: (value) =>
-                              value === "" ? value : parseFloat(value),
-                          })}
+                          {...field}
+                          value={isNaN(field.value) ? "" : field.value}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            field.onChange(val === "" ? NaN : parseFloat(val));
+                          }}
                         />
                       </FormItem>
                     )}
                   />
 
                   <FormField
-                    control={form.control}
+                    control={unifiedForm.control}
                     name="description"
-                    render={({}) => (
+                    render={() => (
                       <FormItem className="flex justify-between">
                         <FormLabel>Description</FormLabel>
                         <Textarea
-                          {...form.register("description")}
+                          {...unifiedForm.register("description")}
                           className="max-w-60 md:max-w-sm"
                         />
                       </FormItem>
@@ -258,11 +317,13 @@ export default function NewTransaction() {
                   />
 
                   <FormField
-                    control={form.control}
+                    control={unifiedForm.control}
                     name="date"
                     render={({ field }) => (
                       <FormItem className="flex justify-between">
-                        <FormLabel>Date</FormLabel>
+                        <FormLabel>
+                          {mode === "recurring" ? "Start Date" : "Date"}
+                        </FormLabel>
                         <input
                           {...field}
                           type="datetime-local"
@@ -293,37 +354,20 @@ export default function NewTransaction() {
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="is_recurring"
-                    render={({ field }) => (
-                      <FormItem className="flex justify-between items-center">
-                        <FormLabel>Recurring?</FormLabel>
-                        <Input
-                          type="checkbox"
-                          className="w-5 h-5 accent-green-500 bg-amber-400"
-                          checked={field.value || false}
-                          onChange={(e) => field.onChange(e.target.checked)}
-                          ref={field.ref}
-                        />
-                      </FormItem>
-                    )}
-                  />
-
-                  {form.watch("is_recurring") && (
+                  {mode === "recurring" && (
                     <FormField
-                      control={form.control}
+                      control={unifiedForm.control}
                       name="frequency"
                       render={({ field }) => (
                         <FormItem className="flex justify-between">
                           <FormLabel>Frequency</FormLabel>
                           <Select
-                            defaultValue={field.value || "None"}
+                            value={field.value ?? "monthly"}
                             onValueChange={field.onChange}
                           >
                             <SelectTrigger className="w-[180px]">
                               <SelectValue
-                                placeholder={field.value || "None"}
+                                placeholder={field.value ?? "monthly"}
                               />
                             </SelectTrigger>
                             <SelectContent className="border p-2 rounded-md text-base w-full max-w-56 md:max-w-sm">
@@ -337,37 +381,81 @@ export default function NewTransaction() {
                       )}
                     />
                   )}
+
+                  {mode === "recurring" ? (
+                    <FormField
+                      control={unifiedForm.control}
+                      name="is_consistent_amount"
+                      render={({ field }) => (
+                        <FormItem className="flex justify-between items-center gap-2">
+                          <FormLabel
+                            htmlFor="is_consistent_amount"
+                            className="m-0"
+                          >
+                            Consistent Amount
+                          </FormLabel>
+                          <Input
+                            type="checkbox"
+                            checked={field.value ?? true}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                            id="is_consistent_amount"
+                            className="w-4 h-4"
+                          />
+                        </FormItem>
+                      )}
+                    />
+                  ) : (
+                    <FormField
+                      control={unifiedForm.control}
+                      name="is_actual"
+                      render={({ field }) => (
+                        <FormItem className="flex justify-between items-center gap-2">
+                          <FormLabel htmlFor="is_actual" className="m-0">
+                            Actual Amount
+                          </FormLabel>
+                          <Input
+                            type="checkbox"
+                            checked={field.value ?? true}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                            id="is_actual"
+                            className="w-4 h-4"
+                          />
+                        </FormItem>
+                      )}
+                    />
+                  )}
                 </div>
 
                 <HoverEffect className="flex justify-center items-center bg-blue-600 max-h-10 p-0">
                   <button
                     className="w-full h-full cursor-pointer p-2 rounded-lg text-center font-semibold text-black dark:text-white"
-                    onClick={form.handleSubmit(onSubmit)}
                     disabled={isSubmitting}
+                    type="submit"
                   >
-                    {isSubmitting ? "Adding..." : "Add Transaction"}
+                    {isSubmitting
+                      ? "Adding..."
+                      : mode === "recurring"
+                      ? "Add Recurring Transaction"
+                      : "Add Transaction"}
                   </button>
                 </HoverEffect>
 
                 <div
                   className={`fixed bottom-2.5 left-1/2 transform -translate-x-1/2 w-80 text-red-500 rounded-lg bg-red-950 p-2 px-4 transition-all text-base duration-300 ${
-                    form.formState.errors.amount ||
-                    form.formState.errors.description
+                    unifiedForm.formState.errors.amount ||
+                    unifiedForm.formState.errors.description
                       ? "opacity-100 translate-y-0"
                       : "opacity-0 translate-y-10"
                   }`}
                 >
-                  {form.formState.errors.amount && (
-                    <p>{form.formState.errors.amount.message}</p>
+                  {unifiedForm.formState.errors.amount && (
+                    <p>{unifiedForm.formState.errors.amount.message}</p>
                   )}
-                  {form.formState.errors.description && (
-                    <p>{form.formState.errors.description.message}</p>
+                  {unifiedForm.formState.errors.description && (
+                    <p>{unifiedForm.formState.errors.description.message}</p>
                   )}
-                  {form.formState.errors.description && (
-                    <p>{form.formState.errors.description.message}</p>
-                  )}
-                  {form.formState.errors.date && (
-                    <p>{form.formState.errors.date.message}</p>
+                  {unifiedForm.formState.errors.date && (
+                    <p>{unifiedForm.formState.errors.date.message}</p>
                   )}
                 </div>
               </form>

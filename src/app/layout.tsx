@@ -27,6 +27,8 @@ import Logo from "@/components/common/Logo";
 import { generateMetadata } from "@/lib/head";
 import { Settings } from "@/components/common/Settings";
 import PageLayout from "@/components/helpers/PageLayout";
+import { Achievements } from "@/components/common/Achievements";
+import { AppProvider } from "@/contexts/AppContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -53,6 +55,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  if (process.env.NODE_ENV !== "production") {
+    import("@/lib/recurring");
+  }
+
   return (
     <html
       lang="en"
@@ -70,18 +76,21 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <PasscodeWrapper>
-            <BudgetProvider>
-              <main className="p-0 md:p-6">
-                <PageLayout>
-                  <Logo />
-                  <Settings />
-                  <ThemeToggle />
-                  {children}
-                </PageLayout>
-              </main>
-              <GoToTop />
-              <Toaster />
-            </BudgetProvider>
+            <AppProvider>
+              <BudgetProvider>
+                <main className="p-0 md:p-6">
+                  <PageLayout>
+                    <Logo />
+                    <Settings />
+                    <Achievements />
+                    <ThemeToggle />
+                    {children}
+                  </PageLayout>
+                </main>
+                <GoToTop />
+                <Toaster />
+              </BudgetProvider>
+            </AppProvider>
           </PasscodeWrapper>
         </ThemeProvider>
       </body>

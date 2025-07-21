@@ -32,14 +32,17 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+
 import { Icon } from "@iconify/react/dist/iconify.js";
-import {  printReceipt } from "@/lib/download";
+import { printReceipt } from "@/lib/download";
 import { useBudget } from "@/contexts/BudgetContext";
+import EditTransactionDialog from "./EditTransactionDialog";
+import { AmountMismatchDialog } from "./InconsistencePrompt";
 
 export default function SingleTransaction({
   trx,
 }: Readonly<{ trx: selectTransactionType }>) {
-  const { currency } = useBudget();
+  const { currency, updateTransaction } = useBudget();
   const { colorfulCategories, colorfulTransactions } = useApp();
 
   const getCategoryColor = (category: string) => {
@@ -110,7 +113,7 @@ export default function SingleTransaction({
                 }}
               >
                 {trx.type === "income" ? "+" : "-"}
-                <PriceDisplay amount={trx.amount} />
+                <PriceDisplay trx={trx} />
                 {trx.is_recurring && (
                   <span className="flex items-center md:hidden">
                     <Icon
@@ -126,14 +129,36 @@ export default function SingleTransaction({
                     />
                   </span>
                 )}
+
+                {trx.is_actual === false && (
+                  <AmountMismatchDialog
+                    trxId={trx.id}
+                    trxAmount={trx.amount}
+                    onConfirm={(amt) =>
+                      updateTransaction({
+                        ...trx,
+                        is_actual: true,
+                        amount: amt,
+                      })
+                    }
+                  />
+                )}
               </div>
             </div>
           </div>
         </ContextMenuTrigger>
         <ContextMenuContent className="select-none">
           <ContextMenuItem asChild>
-            <RecurringStatusDialog trx={trx} />
+            <EditTransactionDialog trx={trx} />
           </ContextMenuItem>
+          {trx.is_recurring && (
+            <>
+              <div className="border my-1 border-accent" />
+              <ContextMenuItem asChild>
+                <RecurringStatusDialog trx={trx} />
+              </ContextMenuItem>
+            </>
+          )}
           <div className="border my-1 border-accent" />
           <ContextMenuItem asChild>
             <div

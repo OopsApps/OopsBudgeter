@@ -22,6 +22,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { expenseCategories, incomeCategories } from "@/lib/categories";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { selectTransactionType } from "@/schema/transactionForm";
 
 const SECRET = process.env.JWT_SECRET as string;
 
@@ -51,8 +52,7 @@ async function verifyToken(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const { authorized, user, error } = await verifyToken(req);
-
+  const { authorized, error } = await verifyToken(req);
   if (!authorized) {
     return NextResponse.json({ message: error }, { status: 401 });
   }
@@ -60,7 +60,6 @@ export async function GET(req: NextRequest) {
   try {
     const transactionsList = await db.select().from(transactions);
     return NextResponse.json({
-      user,
       transactions: transactionsList,
     });
   } catch (err) {
@@ -85,11 +84,16 @@ export async function POST(req: NextRequest) {
     const {
       type,
       amount,
+      original_amount,
+      original_currency,
       description,
       date,
       category,
+      is_actual,
+      recurring_parent_id,
       is_recurring,
       frequency,
+      is_consistent_amount,
       status,
     } = await req.json();
 
@@ -107,11 +111,16 @@ export async function POST(req: NextRequest) {
       .values({
         type,
         amount,
+        original_amount,
+        original_currency,
         description: description || "",
         date,
         category,
+        is_actual,
+        recurring_parent_id,
         is_recurring,
         frequency,
+        is_consistent_amount,
         status,
       })
       .returning();
@@ -182,24 +191,31 @@ export async function PATCH(req: NextRequest) {
   }
 
   try {
-    const { id, newStatus } = await req.json();
+    const { id, amount, description, category, is_actual } = await req.json();
 
-    if (!id || !newStatus) {
+    if (!id) {
       return NextResponse.json(
-        { message: "Missing transaction ID or status" },
+        { message: "Missing transaction ID" },
         { status: 400 }
       );
     }
 
+    const updateData: Partial<selectTransactionType> = {};
+
+    if (amount !== undefined) updateData.amount = amount;
+    if (description !== undefined) updateData.description = description;
+    if (category !== undefined) updateData.category = category;
+    if (is_actual !== undefined) updateData.is_actual = is_actual;
+
     await db
       .update(transactions)
-      .set({ status: newStatus })
+      .set(updateData)
       .where(eq(transactions.id, id));
 
     return NextResponse.json({
       user,
       message: "Transaction updated successfully",
-      updatedTransaction: { id, status: newStatus },
+      updatedTransaction: updateData,
     });
   } catch (err) {
     return NextResponse.json(

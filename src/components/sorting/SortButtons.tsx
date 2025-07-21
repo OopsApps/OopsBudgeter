@@ -62,7 +62,7 @@ export default function SortButtons() {
           sortKey={sortKey}
           icon="fluent:calendar-arrow-repeat-all-16-filled"
           onClick={() => sortTransactions("recurring")}
-          popTitle="Sort by Recurring Transactions"
+          popTitle="View Recurring Transactions"
         />
       </div>
 

@@ -19,7 +19,6 @@ import React, { useEffect, useState } from "react";
 import HoverEffect from "../effects/HoverEffect";
 import PriceDisplay from "../common/Currency";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { Icon } from "@iconify/react";
 
 interface InExCardProps {
@@ -66,12 +65,16 @@ export default function InExCard({
             className={iconClassName}
           />
         </h2>
-        <motion.span
-          animate={{ y: animateText ? 27 : 0, opacity: animateText ? 0 : 1 }}
-          transition={{ ease: "easeInOut", duration: 0.3 }}
+        <span
+          className={cn(
+            "transition-all duration-300",
+            animateText
+              ? "opacity-0 translate-y-7"
+              : "opacity-100 translate-y-0"
+          )}
         >
-          <PriceDisplay amount={amount} />
-        </motion.span>
+          <PriceDisplay trx={{ amount }} />
+        </span>
       </div>
     </HoverEffect>
   );

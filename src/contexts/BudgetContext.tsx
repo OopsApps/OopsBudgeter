@@ -17,11 +17,16 @@
 
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { fetchTransactions } from "@/lib/api";
 import { startOfMonth, endOfMonth, isWithinInterval, parseISO } from "date-fns";
 import { selectTransactionType } from "@/schema/transactionForm";
-import { AppProvider } from "./AppContext";
+import {
+  achievements,
+  checkUnlockedAchievements,
+} from "@/constants/achievements";
+import { toast } from "sonner";
+import { useApp } from "./AppContext";
 
 interface BudgetContextType {
   transactions: selectTransactionType[];
@@ -46,6 +51,7 @@ interface BudgetContextType {
   toggleSortOrder: () => void;
   toggleBalanceMode: () => void;
   updateTransactionStatus: (id: number, newStatus: string) => void;
+  updateTransaction: (updatedTransaction: selectTransactionType) => void;
 }
 
 const BudgetContext = createContext<BudgetContextType | undefined>(undefined);
@@ -68,6 +74,8 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
     "total"
   );
   const [currency, setCurrency] = useState("USD");
+  const prevUnlocked = useRef<{ [key: string]: boolean }>({});
+  const { soundEffects } = useApp();
 
   useEffect(() => {
     const savedMode = localStorage.getItem("balanceMode");
@@ -113,9 +121,15 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
     end: Date,
     type: "all" | "income" | "expense"
   ) => {
-    let filtered = data.filter((trx) =>
-      isWithinInterval(parseISO(trx.date), { start, end })
-    );
+    let filtered: selectTransactionType[] = [];
+
+    filtered = data.filter((trx) => {
+      const isRecurringMatch =
+        sortKey === "recurring" ? trx.is_recurring : !trx.is_recurring;
+      return (
+        isRecurringMatch && isWithinInterval(parseISO(trx.date), { start, end })
+      );
+    });
 
     if (type !== "all") {
       filtered = filtered.filter((trx) => trx.type === type);
@@ -148,13 +162,11 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
     let sorted;
 
     if (key === "recurring") {
-      sorted = transactions.filter(
-        (trx) => trx.is_recurring === true && trx.status !== "canceled"
-      );
+      sorted = transactions.filter((trx) => trx.is_recurring === true);
     } else {
       sorted = [...transactions].filter((trx) => {
         const trxDate = new Date(trx.date);
-        return trxDate >= startDate && trxDate <= endDate;
+        return trxDate >= startDate && trxDate <= endDate && !trx.is_recurring;
       });
     }
 
@@ -184,7 +196,7 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
-  const addTransaction = (newTransaction: selectTransactionType) => {
+  const addTransaction = async (newTransaction: selectTransactionType) => {
     setTransactions((prev) => {
       const updatedTransactions = [newTransaction, ...prev];
       return sortKey === "id" && sortOrder === "desc"
@@ -192,12 +204,79 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
         : [...updatedTransactions].sort((a, b) => a.id - b.id);
     });
 
+    if (sortKey === "recurring" && newTransaction.is_recurring) {
+      setFilteredTransactions((prev) => {
+        const transactionDate = parseISO(newTransaction.date);
+        const isWithinTimeframe =
+          transactionDate >= startDate && transactionDate <= endDate;
+
+        if (!isWithinTimeframe) return prev;
+
+        const updatedFiltered = [newTransaction, ...prev];
+        return sortOrder === "desc"
+          ? updatedFiltered
+          : [...updatedFiltered].sort((a, b) => a.id - b.id);
+      });
+    }
+
+    const unlockedNow = checkUnlockedAchievements([
+      ...transactions,
+      newTransaction,
+    ]);
+
+    const response = await fetch("/api/achievements");
+    const unlockedFromDB = await response.json();
+    const unlockedIds = Array.isArray(unlockedFromDB)
+      ? unlockedFromDB.map(
+          (a: { id?: string }) => a.id?.toString?.() ?? a.toString()
+        )
+      : [];
+
+    const newlyUnlocked = Object.entries(unlockedNow).filter(
+      ([id, unlocked]) => unlocked && !unlockedIds.includes(id)
+    );
+
+    if (newlyUnlocked.length > 0) {
+      for (const [id] of newlyUnlocked) {
+        const achievement = achievements.find((a) => a.id === id);
+        if (!achievement) continue;
+
+        try {
+          await fetch("/api/achievements", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id,
+              title: achievement.title,
+              description: achievement.description,
+            }),
+          });
+        } catch (e) {
+          console.error("Failed to save achievement:", id, e);
+        }
+
+        toast.success(`🎉 Unlocked: ${achievement.title}`);
+        if (soundEffects === "On") {
+          const audio = new Audio("/audio/yay.mp3");
+          audio.volume = 0.1;
+          audio.play().catch((e) => console.error("Sound error:", e));
+        }
+      }
+    }
+
+    prevUnlocked.current = unlockedNow;
+
     setFilteredTransactions((prev) => {
       const transactionDate = parseISO(newTransaction.date);
       const isWithinTimeframe =
         transactionDate >= startDate && transactionDate <= endDate;
 
-      if (!isWithinTimeframe) {
+      const isRecurringMatch =
+        sortKey === "recurring"
+          ? newTransaction.is_recurring
+          : !newTransaction.is_recurring;
+
+      if (!isWithinTimeframe || !isRecurringMatch) {
         return prev;
       }
 
@@ -231,6 +310,20 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
 
     setFilteredTransactions((prev) =>
       prev.map((trx) => (trx.id === id ? { ...trx, status: newStatus } : trx))
+    );
+  };
+
+  const updateTransaction = (updatedTransaction: selectTransactionType) => {
+    setTransactions((prev) =>
+      prev.map((trx) =>
+        trx.id === updatedTransaction.id ? updatedTransaction : trx
+      )
+    );
+
+    setFilteredTransactions((prev) =>
+      prev.map((trx) =>
+        trx.id === updatedTransaction.id ? updatedTransaction : trx
+      )
     );
   };
 
@@ -284,9 +377,10 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
         currency,
         updateCurrency,
         updateTransactionStatus,
+        updateTransaction,
       }}
     >
-      <AppProvider>{children}</AppProvider>
+      {children}
     </BudgetContext.Provider>
   );
 };

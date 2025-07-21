@@ -27,4 +27,4 @@ RUN bun add -g drizzle-kit
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "bunx drizzle-kit push --config=drizzle.config.ts && bun start"]
+CMD ["sh", "-c", "bun x drizzle-kit push --config=drizzle.config.ts && bun start"]

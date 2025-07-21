@@ -23,6 +23,7 @@ import {
   real,
   pgEnum,
   boolean,
+  integer,
 } from "drizzle-orm/pg-core";
 
 export const TypeEnum = pgEnum("TransactionType", ["income", "expense"]);
@@ -45,15 +46,35 @@ export const ExpenseCategories = pgEnum("ExpenseCategories", [
   "Other",
 ]);
 
+export const FrequencyEnum = pgEnum("Frequency", [
+  "daily",
+  "weekly",
+  "monthly",
+  "yearly",
+]);
+
 export const transactions = pgTable("transactions", {
   id: serial("id").primaryKey(),
   type: TypeEnum("type"),
   amount: real("amount").notNull(),
+  original_amount: real("original_amount"),
+  original_currency: text("original_currency"),
   description: text("description"),
   date: timestamp("date", { mode: "string" }).notNull(),
   category: text("category"),
+  is_actual: boolean("is_actual").default(true).notNull(),
 
+  recurring_parent_id: integer("recurring_parent_id"),
   is_recurring: boolean("is_recurring").default(false).notNull(),
-  frequency: text("frequency").default("monthly").notNull(),
+  frequency: FrequencyEnum("frequency"),
+  is_consistent_amount: boolean("is_consistent_amount").default(true),
   status: text("status").default("active").notNull(),
+});
+
+export const achievements = pgTable("achievements", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  unlocked: boolean("unlocked").default(false).notNull(),
+  unlocked_at: timestamp("unlocked_at", { mode: "string" }),
 });

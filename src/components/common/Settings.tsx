@@ -39,6 +39,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { supportedCurrencies } from "@/constants/currencies";
+import pkg from "../../../package.json";
 import Link from "next/link";
 
 export function Settings() {
@@ -52,7 +53,22 @@ export function Settings() {
     setColorfulTransactions,
     soundEffects,
     setSoundEffects,
+    showOriginalAmount,
+    setShowOriginalAmount,
   } = useApp();
+
+  const [latestVersion, setLatestVersion] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    fetch("https://api.github.com/repos/oopsapps/oopsbudgeter/releases/latest")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.tag_name && data.tag_name !== `v${pkg.version}`) {
+          setLatestVersion(data.tag_name);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <HoverEffect className="w-8 h-8 p-1 flex justify-center items-center absolute top-1 left-1">
@@ -188,6 +204,54 @@ export function Settings() {
                 </label>
               </div>
             </div>
+            <div className="flex justify-between items-center">
+              <label>Show Original Amount:</label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Input
+                    type="radio"
+                    value="Off"
+                    checked={showOriginalAmount === "Off"}
+                    onChange={() => setShowOriginalAmount("Off")}
+                  />
+                  Off
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Input
+                    type="radio"
+                    value="On"
+                    checked={showOriginalAmount === "On"}
+                    onChange={() => setShowOriginalAmount("On")}
+                  />
+                  On
+                </label>
+              </div>
+            </div>
+          </div>
+          <div className="mt-4 text-sm text-muted-foreground text-center border-t pt-3">
+            Built with ❤️ by{" "}
+            <a
+              href="https://iconical.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline font-medium text-red-500"
+            >
+              Iconical
+            </a>
+            <div className="mt-1">Version: {pkg.version}</div>
+            {latestVersion && latestVersion.replace(/^v/, "") > pkg.version && (
+              <div className="mt-1 text-orange-500">
+                🚨 New update available:{" "}
+                <a
+                  href={`https://github.com/oopsapps/oopsbudgeter/releases/tag/${latestVersion}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  {latestVersion}
+                </a>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>

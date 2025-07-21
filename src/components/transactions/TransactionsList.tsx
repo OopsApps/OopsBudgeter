@@ -43,7 +43,7 @@ export default function TransactionsList() {
           </h2>
           <div
             onClick={() => router.push("/analytics")}
-            className="flex items-center gap-1 group/btn text-muted-foreground hover:text-primary transition-colors duration-300"
+            className="flex items-center gap-1 group/btn text-muted-foreground hover:text-primary transition-colors duration-300 cursor-pointer"
           >
             <h2 className="font-semibold text-sm md:text-base">
               View Analytics
@@ -81,7 +81,7 @@ export default function TransactionsList() {
         </div>
         <div
           className="flex w-full gap-2 items-center justify-center cursor-pointer bg-accent hover:bg-blue-500 transition-colors duration-300 p-2 rounded-md"
-          onClick={() => exportTransactions(filteredTransactions, currency)}
+          onClick={() => exportTransactions(filteredTransactions)}
         >
           Export CSV
           <Icon icon="ix:simulation-table" width={20} aria-valuetext="Print" />

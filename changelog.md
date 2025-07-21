@@ -1,5 +1,62 @@
 # OopsBudgeter Changelog
 
+## v3.0.0 - Achievements & Original Currency Magic 🏆💸  
+**Released: July 21, 2025**
+
+This update is packed with juicy new features, smart upgrades, and fixes that’ll make you fall in love with your budget all over again. Unlock achievements, and flex your original currency—because *we’re international now* 😏🌍
+
+---
+
+### ✨ New Features
+
+- 🔄 **Recurring System Rewritten**  
+  - Completely revamped the recurring transactions logic.  
+  - Includes a **sleek new toggle** for enabling/disabling recurring mode.  
+  - More stable, visually polished, and intuitive to use.
+
+- 🏆 **Achievements System Added**  
+  - 10+ achievements now track your financial activity.  
+  - Locked achievements show as darkened + blurred with a lil’ lock 🔒  
+  - Toast and **YAY** sound plays when unlocking one for the first time.  
+  - Tracks unlocks based on transaction history dynamically.
+
+- 💱 **Original Currency Display**  
+  - If your transaction used another currency, hover to see the original amount.  
+  - Toggle “Show Original Currency” in settings to enable or disable.  
+  - Smarter currency handling overall 💸
+
+- 🧾 **Receipt Fixes & Print Polishing**  
+  - First-time print preview no longer appears empty.  
+  - Currency and data show consistently now.
+
+- 🧠 **Update Checker**  
+  - App checks if a newer version exists on GitHub (`oopsapps/oopsbudgeter`).  
+  - Shows update notification with a link to the repo *only if* a newer version is found.
+
+- ⚙️ **Footer Improvements**  
+  - Developer credit added.  
+  - App version now displayed, pulled directly from `package.json`.
+
+---
+
+### 🛠️ Bug Fixes & Improvements
+
+- Fixed types for recurring frequency fields and null handling.  
+- Improved validation for import data.  
+- Ensured dark/light mode compatibility in Other UI.  
+- Toasts and audio won’t trigger repeatedly—only once per unlock.
+- Rewrote recurring transaction logic for improved stability and user experience.
+
+---
+
+### 🔨 Dev Notes
+
+- Achievements use images from `public/achievements/{id}.png`  
+
+---
+
+**It’s time to make budgeting feel rewarding again. Let’s gooo!** 🔥💻💖  
+
 ## v2.3.0 - Recurring Transactions & Transaction Menu Revamp 🚀  
 **Released: March 20, 2025**  
 

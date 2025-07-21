@@ -24,7 +24,6 @@ import {
 } from "../ui/tooltip";
 import { Icon } from "@iconify/react";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 
 interface SortButtonProps {
   sId?: string;
@@ -53,15 +52,14 @@ export default function SortButton({
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <motion.button
-            animate={clicked ? { scale: 0.9 } : { scale: 1 }}
-            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+          <button
             onClick={() => {
               onClick();
               handleClick();
             }}
             className={cn(
-              "p-2 rounded-md flex gap-1 min-h-9 min-w-9 active:scale-[1.05]",
+              "p-2 rounded-md flex gap-1 min-h-9 min-w-9 transition-transform duration-150 cursor-pointer",
+              clicked ? "scale-90" : "scale-100",
               className,
               sortKey === sId
                 ? "text-primary bg-background"
@@ -69,7 +67,7 @@ export default function SortButton({
             )}
           >
             <Icon icon={icon} width={20} />
-          </motion.button>
+          </button>
         </TooltipTrigger>
         <TooltipContent side="top">{popTitle}</TooltipContent>
       </Tooltip>
