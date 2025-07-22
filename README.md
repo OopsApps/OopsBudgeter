@@ -13,7 +13,9 @@ OopsBudgeter is a personal finance management app designed to help users track t
 ## Features
 
 - **💰 Track income and expenses**: Easily manage transactions with details like amount, description, category, and date.
+- **❗ Unconfirmed Transactions**: Add a transaction with "Is Actual/Is Consistent" toggles, then the amount with look like `23.5 !` as unconfirmed. Confirm or update it later when you're sure. *Like a financial post-it note.*
 - **📊 Advanced Analytics Dashboard**: Gain insights into your financial trends with detailed graphs and FakeAI-powered insights. *Yes, we graphically display your bad decisions!*
+- **📈 Predictive Balances & Forecasting**: Visualize future transactions and projected account balances based on your recurring income and expenses. *Because knowing you're going broke ahead of time is... helpful?*
 - **🤖 FakeAI-Powered Insights**: Automated spending analysis and financial recommendations (like, "Stop buying useless stuff!").
 - **🔥 No-Spend Streaks**: Tracks how many consecutive days you've avoided spending. *Good luck breaking your record past a week!* 😂
 - **📱 PWA Support**: Works offline, and you can install it as a native app. *Now you can check your tragic finances even without internet!*
@@ -142,10 +144,12 @@ This project is licensed under the **Apache License 2.0**. See the [LICENSE](LIC
 ## **How OopsBudgeter Works**
 
 1. **Track Income or Expenses**: Add transactions by selecting type, amount, description, category, and date.
+1.5. **Add Unconfirmed Amounts**: Enter amounts like `40.25 !` to mark a transaction as unconfirmed until you're sure. *Perfect for “probably spent it, not sure how much though” moments.*
 2. **View Financial Analytics**: Get a breakdown of spending habits, trends, and AI-powered insights. *Aka: How much money you’ve wasted.*
 3. **Monitor Your No-Spend Streak**: See how long you've gone without unnecessary expenses. *Spoiler alert: It won’t be long.*
 4. **Print or Download Transactions**: Export transactions in **CSV** or **JSON** format. *So you can cry over them later.*
-5. **Plan Ahead with Predictions**: View projected spending based on trends. *Basically, a sneak peek into your future regrets.*
+5. **Forecast Future Transactions**: View predictive transactions in greyed-out style with strikethroughs, representing future recurring incomes and expenses. *It's like fortune-telling, but sadder.*
+6. **Plan Ahead with Predictions**: View projected spending based on trends. *Basically, a sneak peek into your future regrets.*
 
 OopsBudgeter is your all-in-one finance tracker, **making sure you face your financial mistakes head-on! 🚀😂**
 
