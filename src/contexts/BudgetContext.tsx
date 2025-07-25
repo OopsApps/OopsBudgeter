@@ -341,11 +341,11 @@ export const BudgetProvider = ({ children }: { children: React.ReactNode }) => {
     .reduce((sum, trx) => sum + trx.amount, 0);
 
   const totalPersistentIncome = transactions
-    .filter((trx) => trx.type === "income")
+    .filter((trx) => trx.type === "income" && !trx.is_recurring)
     .reduce((sum, trx) => sum + trx.amount, 0);
 
   const totalPersistentExpense = transactions
-    .filter((trx) => trx.type === "expense")
+    .filter((trx) => trx.type === "expense" && !trx.is_recurring)
     .reduce((sum, trx) => sum + trx.amount, 0);
 
   const balance = totalIncome - totalExpense;
